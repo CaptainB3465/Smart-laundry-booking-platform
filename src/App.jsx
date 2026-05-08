@@ -1,0 +1,102 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthLayout } from './layouts/AuthLayout';
+import { AppLayout } from './layouts/AppLayout';
+import { Home } from './pages/Home';
+import { Login } from './pages/Auth/Login';
+import { Register } from './pages/Auth/Register';
+import { BookingForm } from './pages/Booking/BookingForm';
+import { UserDashboard } from './pages/Dashboard/UserDashboard';
+import { AdminDashboard } from './pages/Dashboard/AdminDashboard';
+import { Settings } from './pages/Dashboard/Settings';
+import { SettingsProvider } from './context/SettingsContext';
+import './index.css';
+
+// Protected Route for Authenticated Users
+const ProtectedRoute = ({ children, requireAdmin = false }) => {
+  const { currentUser, isAdmin } = useAuth();
+  
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (requireAdmin && !isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+// Route to redirect authenticated users AWAY from login/signup
+const PublicOnlyRoute = ({ children }) => {
+  const { currentUser } = useAuth();
+  
+  if (currentUser) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+function App() {
+  return (
+    <SettingsProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+          {/* Landing Page without standard App Layout to allow full screen Hero */}
+          <Route path="/" element={<Home />} />
+
+          {/* Auth Layout - Strict separation for Login/Register */}
+          <Route element={<PublicOnlyRoute><AuthLayout /></PublicOnlyRoute>}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
+
+          {/* App Layout - For Dashboard and internal pages */}
+          <Route element={<AppLayout />}>
+            <Route 
+              path="/booking" 
+              element={
+                <ProtectedRoute>
+                  <BookingForm />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <UserDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } 
+            />
+          </Route>
+          
+          {/* Fallback route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+    </SettingsProvider>
+  );
+}
+
+export default App;

@@ -1,0 +1,151 @@
+import React, { useState } from 'react';
+import { useSettings } from '../../context/SettingsContext';
+import { Card, CardBody, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Input } from '../../components/ui/Input';
+import { Button } from '../../components/ui/Button';
+import { Moon, Sun, Mail, Phone, Building } from 'lucide-react';
+
+export const Settings = () => {
+  const { theme, setTheme, companyName, setCompanyName, currency, setCurrency } = useSettings();
+  const [localCompanyName, setLocalCompanyName] = useState(companyName);
+  const [localCurrency, setLocalCurrency] = useState(currency);
+  const [saved, setSaved] = useState(false);
+
+  const handleSaveCompany = (e) => {
+    e.preventDefault();
+    setCompanyName(localCompanyName);
+    setCurrency(localCurrency);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto animate-fade-in">
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Settings</h2>
+        <p className="text-slate-600 dark:text-slate-400 mt-1">Manage your app preferences and view support information.</p>
+      </div>
+
+      <div className="space-y-6">
+        {/* Appearance Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {theme === 'dark' ? <Moon size={20} className="text-brand-500" /> : <Sun size={20} className="text-amber-500" />}
+              Appearance
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-slate-900 dark:text-white">Theme Preference</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Toggle between light and dark mode.</p>
+              </div>
+              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                <button
+                  onClick={() => setTheme('light')}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    theme === 'light' 
+                      ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' 
+                      : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                  }`}
+                >
+                  Light
+                </button>
+                <button
+                  onClick={() => setTheme('dark')}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    theme === 'dark' 
+                      ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' 
+                      : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                  }`}
+                >
+                  Dark
+                </button>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Business Details Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building size={20} className="text-brand-500" />
+              Business Details
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
+            <form onSubmit={handleSaveCompany} className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Laundry Company Name"
+                  value={localCompanyName}
+                  onChange={(e) => setLocalCompanyName(e.target.value)}
+                  placeholder="Enter your company name"
+                  className="mb-0"
+                />
+                <div className="flex flex-col mb-4">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Currency</label>
+                  <select 
+                    value={localCurrency} 
+                    onChange={(e) => setLocalCurrency(e.target.value)} 
+                    className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:border-brand-500 focus:ring-brand-100"
+                  >
+                    <option value="$">USD ($)</option>
+                    <option value="KES">Kenyan Shilling (KES)</option>
+                    <option value="€">Euro (€)</option>
+                    <option value="£">British Pound (£)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end mt-2">
+                <Button type="submit">Save Changes</Button>
+              </div>
+            </form>
+            {saved && <p className="text-emerald-600 text-sm mt-2 font-medium">Company name updated successfully!</p>}
+          </CardBody>
+        </Card>
+
+        {/* Support Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Phone size={20} className="text-brand-500" />
+              Support & Feedback
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 dark:text-brand-400 shrink-0">
+                  <Mail size={20} />
+                </div>
+                <div>
+                  <p className="font-medium text-slate-900 dark:text-white text-sm">Feedback Email</p>
+                  <a href="mailto:munyuabrian712@gmail.com" className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 font-medium">
+                    munyuabrian712@gmail.com
+                  </a>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Send us your thoughts and suggestions.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <Phone size={20} />
+                </div>
+                <div>
+                  <p className="font-medium text-slate-900 dark:text-white text-sm">Contact Support</p>
+                  <a href="tel:+254719328502" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium break-all">
+                    +254719328502
+                  </a>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Reach out for any technical issues.</p>
+                </div>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    </div>
+  );
+};

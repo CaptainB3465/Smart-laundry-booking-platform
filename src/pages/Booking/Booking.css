@@ -1,0 +1,81 @@
+.booking-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.booking-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.booking-title {
+  font-size: 2rem;
+  color: var(--color-text);
+}
+
+.service-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.service-option {
+  border: 2px solid #cbd5e1;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background-color: var(--color-surface);
+}
+
+.service-option:hover {
+  border-color: var(--color-primary-light);
+  transform: translateY(-2px);
+}
+
+.service-option.selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.service-icon {
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.service-name {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.service-price {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.price-summary {
+  background-color: #f8fafc;
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+  border: 1px dashed #cbd5e1;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.price-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #cbd5e1;
+}
