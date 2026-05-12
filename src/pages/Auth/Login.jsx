@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -30,7 +31,15 @@ export const Login = () => {
   };
 
   return (
-    <div>
+    <div className="relative">
+      <Link 
+        to="/" 
+        className="absolute -top-6 left-0 flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-brand-600 transition-colors"
+      >
+        <ArrowLeft size={16} />
+        Back to Home
+      </Link>
+      <div>
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-slate-900">Welcome Back</h2>
         <p className="mt-2 text-sm text-slate-600">Sign in to your account</p>
