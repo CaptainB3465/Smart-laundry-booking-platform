@@ -20,15 +20,10 @@ export const Home = () => {
           <img 
             src="/bg.jpg" 
             alt="" 
-            className="w-full h-full object-cover opacity-30 dark:opacity-40"
+            className="w-full h-full object-cover opacity-60 dark:opacity-50"
           />
         </div>
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/80 to-white dark:from-slate-900/80 dark:to-slate-900 transition-colors duration-700"></div>
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 -left-4 w-72 h-72 bg-brand-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-          <div className="absolute top-0 -right-4 w-72 h-72 bg-accent-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
-        </div>
+        <div className="absolute inset-0 z-0 bg-white/20 dark:bg-slate-900/40 transition-colors duration-700"></div>
         
         <div className="relative z-10 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 text-brand-700 text-sm font-medium mb-8">
