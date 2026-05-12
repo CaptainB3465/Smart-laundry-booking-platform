@@ -1,154 +1,146 @@
-// Mock Backend Service mimicking Firebase API
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  query, 
+  where, 
+  orderBy,
+  serverTimestamp,
+  onSnapshot
+} from "firebase/firestore";
+import db from "../db";
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// --- ORDER OPERATIONS ---
 
-// Mock Data Store (In-Memory)
-let mockUsers = [
-  {
-    uid: 'admin123',
-    email: import.meta.env.VITE_ADMIN_EMAIL || 'admin@laundry.com',
-    password: import.meta.env.VITE_ADMIN_PASSWORD || 'admin123',
-    displayName: 'Admin',
-    role: 'admin',
-  },
-  {
-    uid: 'user123',
-    email: 'user@laundry.com',
-    displayName: 'Test User',
-    role: 'user',
-  }
-];
-
-let mockOrders = [
-  {
-    id: 'ord_1',
-    userId: 'user123',
-    fullName: 'Test User',
-    phone: '123-456-7890',
-    location: '123 Main St, NY',
-    serviceType: 'Wash & Fold',
-    pickupDate: '2026-05-05T10:00',
-    status: 'Pending',
-    price: 25.0,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'ord_2',
-    userId: 'user123',
-    fullName: 'Test User',
-    phone: '123-456-7890',
-    location: '123 Main St, NY',
-    serviceType: 'Dry Clean',
-    pickupDate: '2026-05-04T14:00',
-    status: 'Washing',
-    price: 45.0,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  }
-];
-
-// --- AUTHENTICATION MOCK ---
-export const loginUser = async (email, password) => {
-  await delay(1000);
-  const user = mockUsers.find((u) => u.email === email);
-  if (!user) throw new Error('Invalid email or password');
-  
-  // For the specific admin, check the password
-  if (user.role === 'admin' && user.password && password !== user.password) {
-    throw new Error('Invalid email or password');
-  }
-  
-  return user;
-};
-
-export const registerUser = async (email, password, displayName) => {
-  await delay(1000);
-  if (mockUsers.find((u) => u.email === email)) {
-    throw new Error('Email already in use');
-  }
-  const newUser = {
-    uid: 'usr_' + Math.random().toString(36).substr(2, 9),
-    email,
-    displayName,
-    role: 'user',
-  };
-  mockUsers.push(newUser);
-  return newUser;
-};
-
-export const logoutUser = async () => {
-  await delay(500);
-  return true;
-};
-
-// --- FIRESTORE MOCK ---
 export const createOrder = async (orderData) => {
-  await delay(1000);
-  const newOrder = {
-    ...orderData,
-    id: 'ord_' + Math.random().toString(36).substr(2, 9),
-    status: 'Pending',
-    createdAt: new Date().toISOString(),
-  };
-  mockOrders.push(newOrder);
-  return newOrder;
+  try {
+    const ordersRef = collection(db, "orders");
+    const docRef = await addDoc(ordersRef, {
+      ...orderData,
+      createdAt: serverTimestamp(),
+      status: 'Pending'
+    });
+    return { id: docRef.id, ...orderData };
+  } catch (error) {
+    console.error("Error creating order:", error);
+    throw error;
+  }
 };
 
 export const getUserOrders = async (userId) => {
-  await delay(800);
-  return mockOrders.filter((order) => order.userId === userId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  try {
+    const ordersRef = collection(db, "orders");
+    const q = query(
+      ordersRef, 
+      where("userId", "==", userId), 
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
+    }));
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    return [];
+  }
 };
 
 export const getAllOrders = async () => {
-  await delay(1000);
-  return [...mockOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  try {
+    const ordersRef = collection(db, "orders");
+    const q = query(ordersRef, orderBy("createdAt", "desc"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
+    }));
+  } catch (error) {
+    console.error("Error fetching all orders:", error);
+    return [];
+  }
 };
 
 export const updateOrderStatus = async (orderId, newStatus) => {
-  await delay(800);
-  const orderIndex = mockOrders.findIndex((o) => o.id === orderId);
-  if (orderIndex === -1) throw new Error('Order not found');
-  
-  mockOrders[orderIndex] = { ...mockOrders[orderIndex], status: newStatus };
-  return mockOrders[orderIndex];
-};
-
-export const updateUserProfile = async (userId, data) => {
-  await delay(1000);
-  const userIndex = mockUsers.findIndex((u) => u.uid === userId);
-  if (userIndex === -1) throw new Error('User not found');
-  
-  mockUsers[userIndex] = { ...mockUsers[userIndex], ...data };
-  return mockUsers[userIndex];
-};
-
-export const getAdminStats = async () => {
-  await delay(1200);
-  const totalRevenue = mockOrders.reduce((sum, order) => sum + order.price, 0);
-  const activeOrders = mockOrders.filter(o => o.status !== 'Delivered').length;
-  const completedOrders = mockOrders.filter(o => o.status === 'Delivered').length;
-  const totalCustomers = new Set(mockOrders.map(o => o.userId)).size;
-
-  return {
-    totalRevenue,
-    activeOrders,
-    completedOrders,
-    totalCustomers,
-    recentGrowth: '+12.5%' // Mock growth
-  };
+  try {
+    const orderRef = doc(db, "orders", orderId);
+    await updateDoc(orderRef, { status: newStatus });
+    return true;
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    throw error;
+  }
 };
 
 export const deleteOrder = async (orderId) => {
-  await delay(800);
-  mockOrders = mockOrders.filter(o => o.id !== orderId);
-  return true;
+  try {
+    const orderRef = doc(db, "orders", orderId);
+    await deleteDoc(orderRef);
+    return true;
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    throw error;
+  }
 };
 
-export const updateService = async (serviceId, serviceData) => {
-  await delay(500);
-  return { id: serviceId, ...serviceData };
+// --- STATS OPERATIONS ---
+
+export const getAdminStats = async () => {
+  try {
+    const orders = await getAllOrders();
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.price || 0), 0);
+    const activeOrders = orders.filter(o => o.status !== 'Delivered').length;
+    const completedOrders = orders.filter(o => o.status === 'Delivered').length;
+    const totalCustomers = new Set(orders.map(o => o.userId)).size;
+
+    return {
+      totalRevenue,
+      activeOrders,
+      completedOrders,
+      totalCustomers,
+      recentGrowth: '+12.5%'
+    };
+  } catch (error) {
+    console.error("Error calculating stats:", error);
+    return { totalRevenue: 0, activeOrders: 0, completedOrders: 0, totalCustomers: 0 };
+  }
 };
 
-export const addService = async (serviceData) => {
-  await delay(500);
-  return { id: Math.random().toString(36).substr(2, 9), ...serviceData };
+// --- REAL-TIME SUBSCRIPTIONS ---
+
+export const subscribeToUserOrders = (userId, callback) => {
+  const ordersRef = collection(db, "orders");
+  const q = query(
+    ordersRef, 
+    where("userId", "==", userId), 
+    orderBy("createdAt", "desc")
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const orders = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
+    }));
+    callback(orders);
+  });
+};
+
+export const subscribeToAllOrders = (callback) => {
+  const ordersRef = collection(db, "orders");
+  const q = query(ordersRef, orderBy("createdAt", "desc"));
+
+  return onSnapshot(q, (snapshot) => {
+    const orders = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
+    }));
+    callback(orders);
+  });
 };

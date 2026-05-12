@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
-import { getUserOrders, deleteOrder } from '../../services/api';
+import { subscribeToUserOrders, deleteOrder } from '../../services/api';
 import { Card, CardBody } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Package, MapPin, Calendar, Trash2, XCircle } from 'lucide-react';
@@ -19,22 +19,17 @@ export const UserDashboard = () => {
     return `${currency === 'KES' ? 'KES ' : currency}${price.toFixed(2)}`;
   };
 
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      const data = await getUserOrders(currentUser.uid);
-      setOrders(data);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (currentUser) {
-      fetchOrders();
-    }
+    if (!currentUser) return;
+
+    // Start real-time subscription
+    const unsubscribe = subscribeToUserOrders(currentUser.uid, (data) => {
+      setOrders(data);
+      setLoading(false);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, [currentUser]);
 
   const handleCancelOrder = async (orderId) => {
