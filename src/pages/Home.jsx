@@ -16,14 +16,13 @@ export const Home = () => {
       <Navbar />
       {/* Hero Section */}
       <section className="relative overflow-hidden flex-1 flex flex-col justify-center items-center py-20 px-4 sm:px-6 lg:px-8 text-center bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-all duration-700">
-        <div 
-          className="absolute inset-0 z-0 opacity-10 dark:opacity-20 transition-opacity duration-1000"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1545173168-9f1947eebb7f?q=80&w=2071&auto=format&fit=crop')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        ></div>
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <img 
+            src="/bg.jpg" 
+            alt="" 
+            className="w-full h-full object-cover opacity-30 dark:opacity-40"
+          />
+        </div>
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/80 to-white dark:from-slate-900/80 dark:to-slate-900 transition-colors duration-700"></div>
         <div className="absolute inset-0 z-0">
           <div className="absolute top-0 -left-4 w-72 h-72 bg-brand-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>

@@ -9,11 +9,12 @@ export const AuthLayout = () => {
     <div className="min-h-screen relative flex flex-col justify-center py-12 sm:px-6 lg:px-8 overflow-hidden">
       <div className="absolute inset-0 z-0 bg-slate-900">
         <img 
-          src="https://images.unsplash.com/photo-1629429408209-1f912961dbd8?q=80&w=2070&auto=format&fit=crop" 
-          alt="Clean Laundry background" 
+          src="/bg.jpg" 
+          alt="Background" 
           className="w-full h-full object-cover"
+          onError={(e) => console.error("Image failed to load:", e)}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-900/40 to-slate-900/80 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" />
       </div>
 
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md mb-6 animate-fade-in-down">
