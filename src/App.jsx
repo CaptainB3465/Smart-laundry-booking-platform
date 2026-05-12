@@ -1,21 +1,19 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuthLayout } from './layouts/AuthLayout';
 import { AppLayout } from './layouts/AppLayout';
+import { Home } from './pages/Home';
+import { Login } from './pages/Auth/Login';
+import { Register } from './pages/Auth/Register';
+import { BookingForm } from './pages/Booking/BookingForm';
+import { BookingSuccess } from './pages/Booking/BookingSuccess';
+import { UserDashboard } from './pages/Dashboard/UserDashboard';
+import { AdminDashboard } from './pages/Dashboard/AdminDashboard';
+import { Settings } from './pages/Dashboard/Settings';
 import { SettingsProvider } from './context/SettingsContext';
 import app from './firebase';
 import './index.css';
-
-// Lazy load pages for better performance
-const Home = lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
-const Login = lazy(() => import('./pages/Auth/Login').then(module => ({ default: module.Login })));
-const Register = lazy(() => import('./pages/Auth/Register').then(module => ({ default: module.Register })));
-const BookingForm = lazy(() => import('./pages/Booking/BookingForm').then(module => ({ default: module.BookingForm })));
-const BookingSuccess = lazy(() => import('./pages/Booking/BookingSuccess').then(module => ({ default: module.BookingSuccess })));
-const UserDashboard = lazy(() => import('./pages/Dashboard/UserDashboard').then(module => ({ default: module.UserDashboard })));
-const AdminDashboard = lazy(() => import('./pages/Dashboard/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
-const Settings = lazy(() => import('./pages/Dashboard/Settings').then(module => ({ default: module.Settings })));
 
 console.log("Firebase App Initialized:", app);
 
