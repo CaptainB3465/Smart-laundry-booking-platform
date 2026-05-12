@@ -12,7 +12,7 @@ export const Home = () => {
   const { companyName } = useSettings();
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300 flex flex-col pt-16">
+    <div className="min-h-[100dvh] bg-slate-50 dark:bg-slate-900 transition-colors duration-300 flex flex-col pt-16">
       <Navbar />
       {/* Hero Section */}
       <section className="relative overflow-hidden flex-1 flex flex-col justify-center items-center py-20 px-4 sm:px-6 lg:px-8 text-center bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-all duration-700">

@@ -6,7 +6,7 @@ import { useSettings } from '../context/SettingsContext';
 export const AuthLayout = () => {
   const { companyName } = useSettings();
   return (
-    <div className="min-h-screen relative flex flex-col justify-center py-12 sm:px-6 lg:px-8 overflow-hidden">
+    <div className="min-h-[100dvh] relative flex flex-col justify-center py-12 sm:px-6 lg:px-8 overflow-hidden">
       <div className="absolute inset-0 z-0 bg-slate-900">
         <img 
           src="/bg.jpg" 

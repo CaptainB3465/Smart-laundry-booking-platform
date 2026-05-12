@@ -1,19 +1,21 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuthLayout } from './layouts/AuthLayout';
 import { AppLayout } from './layouts/AppLayout';
-import { Home } from './pages/Home';
-import { Login } from './pages/Auth/Login';
-import { Register } from './pages/Auth/Register';
-import { BookingForm } from './pages/Booking/BookingForm';
-import { BookingSuccess } from './pages/Booking/BookingSuccess';
-import { UserDashboard } from './pages/Dashboard/UserDashboard';
-import { AdminDashboard } from './pages/Dashboard/AdminDashboard';
-import { Settings } from './pages/Dashboard/Settings';
 import { SettingsProvider } from './context/SettingsContext';
 import app from './firebase';
 import './index.css';
+
+// Lazy load pages for better performance
+const Home = lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
+const Login = lazy(() => import('./pages/Auth/Login').then(module => ({ default: module.Login })));
+const Register = lazy(() => import('./pages/Auth/Register').then(module => ({ default: module.Register })));
+const BookingForm = lazy(() => import('./pages/Booking/BookingForm').then(module => ({ default: module.BookingForm })));
+const BookingSuccess = lazy(() => import('./pages/Booking/BookingSuccess').then(module => ({ default: module.BookingSuccess })));
+const UserDashboard = lazy(() => import('./pages/Dashboard/UserDashboard').then(module => ({ default: module.UserDashboard })));
+const AdminDashboard = lazy(() => import('./pages/Dashboard/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const Settings = lazy(() => import('./pages/Dashboard/Settings').then(module => ({ default: module.Settings })));
 
 console.log("Firebase App Initialized:", app);
 
@@ -57,65 +59,71 @@ function App() {
     <SettingsProvider>
       <AuthProvider>
         <Router>
-          <Routes>
-          {/* Landing Page without standard App Layout to allow full screen Hero */}
-          <Route path="/" element={<Home />} />
+          <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
+            </div>
+          }>
+            <Routes>
+            {/* Landing Page without standard App Layout to allow full screen Hero */}
+            <Route path="/" element={<Home />} />
 
-          {/* Auth Layout - Strict separation for Login/Register */}
-          <Route element={<PublicOnlyRoute><AuthLayout /></PublicOnlyRoute>}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-          </Route>
+            {/* Auth Layout - Strict separation for Login/Register */}
+            <Route element={<PublicOnlyRoute><AuthLayout /></PublicOnlyRoute>}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Route>
 
-          {/* App Layout - For Dashboard and internal pages */}
-          <Route element={<AppLayout />}>
-            <Route 
-              path="/booking" 
-              element={
-                <ProtectedRoute>
-                  <BookingWrapper>
-                    <BookingForm />
-                  </BookingWrapper>
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/booking/success" 
-              element={
-                <ProtectedRoute>
-                  <BookingSuccess />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <UserDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute requireAdmin={true}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/settings" 
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              } 
-            />
-          </Route>
-          
-          {/* Fallback route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* App Layout - For Dashboard and internal pages */}
+            <Route element={<AppLayout />}>
+              <Route 
+                path="/booking" 
+                element={
+                  <ProtectedRoute>
+                    <BookingWrapper>
+                      <BookingForm />
+                    </BookingWrapper>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/booking/success" 
+                element={
+                  <ProtectedRoute>
+                    <BookingSuccess />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <UserDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/settings" 
+                element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } 
+              />
+            </Route>
+            
+            {/* Fallback route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </Router>
     </AuthProvider>
     </SettingsProvider>
