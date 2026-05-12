@@ -53,18 +53,18 @@ export const UserDashboard = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="relative overflow-hidden bg-brand-600 rounded-3xl p-8 mb-10 text-white shadow-xl shadow-brand-500/20 group">
+      <div className="relative overflow-hidden bg-brand-600 rounded-3xl p-6 sm:p-8 mb-10 text-white shadow-xl shadow-brand-500/20 group">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700" />
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-black/10 rounded-full blur-3xl group-hover:bg-black/20 transition-all duration-700" />
         
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center text-center lg:text-left gap-6">
           <div>
-            <h2 className="text-3xl font-bold mb-2">Welcome back, {currentUser?.displayName?.split(' ')[0]}! 👋</h2>
-            <p className="text-brand-100 max-w-md">Your laundry is our priority. Schedule your next pickup today and enjoy your free time.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2">Welcome back, {currentUser?.displayName?.split(' ')[0]}! 👋</h2>
+            <p className="text-brand-100 max-w-md mx-auto lg:mx-0">Your laundry is our priority. Schedule your next pickup today and enjoy your free time.</p>
           </div>
           <Button 
             onClick={() => navigate('/booking')}
-            className="bg-white text-brand-600 hover:bg-brand-50 border-none px-8 py-3 text-lg font-bold transition-transform hover:scale-105 dark:bg-slate-900 dark:text-brand-400 dark:hover:bg-slate-800 shadow-lg"
+            className="w-full sm:w-auto bg-white text-brand-600 hover:bg-brand-50 border-none px-8 py-3 text-lg font-bold transition-transform hover:scale-105 dark:bg-slate-900 dark:text-brand-400 dark:hover:bg-slate-800 shadow-lg"
           >
             Schedule Pickup
           </Button>

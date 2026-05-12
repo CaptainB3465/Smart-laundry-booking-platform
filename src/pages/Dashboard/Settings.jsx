@@ -186,7 +186,7 @@ export const Settings = () => {
                 </div>
                 <div>
                   <p className="font-medium text-slate-900 dark:text-white text-sm">Feedback Email</p>
-                  <a href="mailto:munyuabrian712@gmail.com" className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 font-medium">
+                  <a href="mailto:munyuabrian712@gmail.com" className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 font-medium break-all">
                     munyuabrian712@gmail.com
                   </a>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Send us your thoughts and suggestions.</p>
