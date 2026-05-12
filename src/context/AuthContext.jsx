@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, registerUser, logoutUser } from '../services/api';
+import { loginUser, registerUser, logoutUser, updateUserProfile } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -40,11 +40,20 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('laundry_mock_user');
   };
 
+  const updateProfile = async (data) => {
+    if (!currentUser) return;
+    const updatedUser = await updateUserProfile(currentUser.uid, data);
+    setCurrentUser(updatedUser);
+    localStorage.setItem('laundry_mock_user', JSON.stringify(updatedUser));
+    return updatedUser;
+  };
+
   const value = {
     currentUser,
     login,
     register,
     logout,
+    updateProfile,
     isAdmin: currentUser?.role === 'admin'
   };
 

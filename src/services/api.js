@@ -6,8 +6,9 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 let mockUsers = [
   {
     uid: 'admin123',
-    email: 'admin@laundry.com',
-    displayName: 'Admin User',
+    email: 'munyuab3465@gmail.com',
+    password: 'gitere254',
+    displayName: 'Admin',
     role: 'admin',
   },
   {
@@ -50,7 +51,12 @@ export const loginUser = async (email, password) => {
   await delay(1000);
   const user = mockUsers.find((u) => u.email === email);
   if (!user) throw new Error('Invalid email or password');
-  // Mock password check: accepting any password for existing users in mock
+  
+  // For the specific admin, check the password
+  if (user.role === 'admin' && user.password && password !== user.password) {
+    throw new Error('Invalid email or password');
+  }
+  
   return user;
 };
 
@@ -104,4 +110,45 @@ export const updateOrderStatus = async (orderId, newStatus) => {
   
   mockOrders[orderIndex] = { ...mockOrders[orderIndex], status: newStatus };
   return mockOrders[orderIndex];
+};
+
+export const updateUserProfile = async (userId, data) => {
+  await delay(1000);
+  const userIndex = mockUsers.findIndex((u) => u.uid === userId);
+  if (userIndex === -1) throw new Error('User not found');
+  
+  mockUsers[userIndex] = { ...mockUsers[userIndex], ...data };
+  return mockUsers[userIndex];
+};
+
+export const getAdminStats = async () => {
+  await delay(1200);
+  const totalRevenue = mockOrders.reduce((sum, order) => sum + order.price, 0);
+  const activeOrders = mockOrders.filter(o => o.status !== 'Delivered').length;
+  const completedOrders = mockOrders.filter(o => o.status === 'Delivered').length;
+  const totalCustomers = new Set(mockOrders.map(o => o.userId)).size;
+
+  return {
+    totalRevenue,
+    activeOrders,
+    completedOrders,
+    totalCustomers,
+    recentGrowth: '+12.5%' // Mock growth
+  };
+};
+
+export const deleteOrder = async (orderId) => {
+  await delay(800);
+  mockOrders = mockOrders.filter(o => o.id !== orderId);
+  return true;
+};
+
+export const updateService = async (serviceId, serviceData) => {
+  await delay(500);
+  return { id: serviceId, ...serviceData };
+};
+
+export const addService = async (serviceData) => {
+  await delay(500);
+  return { id: Math.random().toString(36).substr(2, 9), ...serviceData };
 };

@@ -13,10 +13,16 @@ export const SettingsProvider = ({ children }) => {
   // Apply theme to document element and save to localStorage
   useEffect(() => {
     const root = window.document.documentElement;
+    const body = window.document.body;
+    console.log('Applying theme:', theme);
     if (theme === 'dark') {
       root.classList.add('dark');
+      body.classList.add('dark');
+      root.style.colorScheme = 'dark';
     } else {
       root.classList.remove('dark');
+      body.classList.remove('dark');
+      root.style.colorScheme = 'light';
     }
     localStorage.setItem('laundry_theme', theme);
   }, [theme]);
@@ -31,9 +37,14 @@ export const SettingsProvider = ({ children }) => {
     localStorage.setItem('laundry_currency', currency);
   }, [currency]);
 
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
   const value = {
     theme,
     setTheme,
+    toggleTheme,
     companyName,
     setCompanyName,
     currency,

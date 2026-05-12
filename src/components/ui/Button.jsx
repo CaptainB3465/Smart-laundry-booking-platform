@@ -16,8 +16,8 @@ export const Button = ({
   
   const variants = {
     primary: "bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500 shadow-sm hover:shadow",
-    secondary: "bg-slate-100 text-slate-800 hover:bg-slate-200 focus:ring-slate-500",
-    outline: "bg-transparent text-brand-600 border border-brand-200 hover:bg-brand-50 hover:border-brand-300 focus:ring-brand-500",
+    secondary: "bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 focus:ring-slate-500",
+    outline: "bg-transparent text-brand-600 border border-brand-200 hover:bg-brand-50 hover:border-brand-300 dark:text-brand-400 dark:border-brand-900/50 dark:hover:bg-brand-900/10 focus:ring-brand-500",
     danger: "bg-red-500 text-white hover:bg-red-600 focus:ring-red-500 shadow-sm",
   };
 

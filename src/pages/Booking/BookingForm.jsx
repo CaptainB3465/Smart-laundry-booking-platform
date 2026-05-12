@@ -12,6 +12,9 @@ const SERVICES = [
   { id: 'wash', name: 'Wash & Fold', price: 25.0, icon: <Droplet size={32} /> },
   { id: 'dry-clean', name: 'Dry Clean', price: 45.0, icon: <Shirt size={32} /> },
   { id: 'ironing', name: 'Ironing Only', price: 20.0, icon: <Sparkles size={32} /> },
+  { id: 'bedding', name: 'Bedding & Linen', price: 35.0, icon: <Droplet size={32} className="rotate-180" /> },
+  { id: 'curtains', name: 'Curtains & Drapes', price: 55.0, icon: <Shirt size={32} className="opacity-70" /> },
+  { id: 'shoes', name: 'Shoe Cleaning', price: 15.0, icon: <Sparkles size={32} className="scale-110" /> },
 ];
 
 export const BookingForm = () => {
@@ -23,7 +26,7 @@ export const BookingForm = () => {
     return `${currency === 'KES' ? 'KES ' : currency}${price.toFixed(2)}`;
   };
   
-  const [selectedService, setSelectedService] = useState(SERVICES[0]);
+  const [selectedServices, setSelectedServices] = useState([SERVICES[0].id]);
   const [formData, setFormData] = useState({
     fullName: currentUser?.displayName || '',
     phone: '',
@@ -35,6 +38,16 @@ export const BookingForm = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const toggleService = (id) => {
+    setSelectedServices(prev => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev; // Keep at least one
+        return prev.filter(sId => sId !== id);
+      }
+      return [...prev, id];
+    });
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -52,7 +65,13 @@ export const BookingForm = () => {
     return 1;
   };
 
-  const calculatedPrice = (selectedService.price + getDetergentPrice()) * getDiscountMultiplier();
+  const getBasePrice = () => {
+    return SERVICES
+      .filter(s => selectedServices.includes(s.id))
+      .reduce((sum, s) => sum + s.price, 0);
+  };
+
+  const calculatedPrice = (getBasePrice() + getDetergentPrice()) * getDiscountMultiplier();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,13 +82,13 @@ export const BookingForm = () => {
     try {
       setLoading(true);
       setError('');
-      await createOrder({
+      const newOrder = await createOrder({
         userId: currentUser.uid,
         ...formData,
-        serviceType: selectedService.name,
+        serviceType: SERVICES.filter(s => selectedServices.includes(s.id)).map(s => s.name).join(', '),
         price: calculatedPrice,
       });
-      navigate('/dashboard');
+      navigate('/booking/success', { state: { order: newOrder } });
     } catch (err) {
       setError('Failed to create booking. Please try again.');
     } finally {
@@ -84,30 +103,38 @@ export const BookingForm = () => {
         <p className="text-slate-600 dark:text-slate-400 text-lg">Tell us what you need and when you need it.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-        {SERVICES.map((service) => (
-          <div
-            key={service.id}
-            onClick={() => setSelectedService(service)}
-            className={`cursor-pointer rounded-2xl p-6 text-center transition-all duration-200 border-2 ${
-              selectedService.id === service.id 
-                ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-md ring-2 ring-brand-100 dark:ring-brand-900' 
-                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-soft'
-            }`}
-          >
-            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
-              selectedService.id === service.id ? 'bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
-            }`}>
-              {service.icon}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        {SERVICES.map((service) => {
+          const isSelected = selectedServices.includes(service.id);
+          return (
+            <div
+              key={service.id}
+              onClick={() => toggleService(service.id)}
+              className={`relative cursor-pointer rounded-2xl p-6 text-center transition-all duration-200 border-2 ${
+                isSelected 
+                  ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-md ring-2 ring-brand-100 dark:ring-brand-900' 
+                  : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-soft'
+              }`}
+            >
+              {isSelected && (
+                <div className="absolute top-3 right-3 w-6 h-6 bg-brand-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                  ✓
+                </div>
+              )}
+              <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
+                isSelected ? 'bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+              }`}>
+                {service.icon}
+              </div>
+              <div className={`font-semibold text-lg mb-1 ${isSelected ? 'text-brand-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
+                {service.name}
+              </div>
+              <div className="text-sm text-slate-500 dark:text-slate-400">
+                {formatPrice(service.price)}
+              </div>
             </div>
-            <div className={`font-semibold text-lg mb-1 ${selectedService.id === service.id ? 'text-brand-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
-              {service.name}
-            </div>
-            <div className="text-sm text-slate-500 dark:text-slate-400">
-              Starting at {formatPrice(service.price)}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <Card>
@@ -154,14 +181,14 @@ export const BookingForm = () => {
               required
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100 dark:border-slate-800">
               <div className="flex flex-col mb-4">
-                <label className="text-sm font-medium text-slate-700 mb-1.5">Detergent Preference</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Detergent Preference</label>
                 <select 
                   name="detergent" 
                   value={formData.detergent} 
                   onChange={handleChange} 
-                  className="px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:border-brand-500 focus:ring-brand-100"
+                  className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:border-brand-500 focus:ring-brand-100"
                 >
                   <option value="standard">Standard Detergent</option>
                   <option value="hypoallergenic">Hypoallergenic (+$2.00)</option>
@@ -169,12 +196,12 @@ export const BookingForm = () => {
                 </select>
               </div>
               <div className="flex flex-col mb-4">
-                <label className="text-sm font-medium text-slate-700 mb-1.5">Subscription Frequency</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Subscription Frequency</label>
                 <select 
                   name="frequency" 
                   value={formData.frequency} 
                   onChange={handleChange} 
-                  className="px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:border-brand-500 focus:ring-brand-100"
+                  className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:border-brand-500 focus:ring-brand-100"
                 >
                   <option value="once">One-time Order</option>
                   <option value="weekly">Weekly Subscription (-10%)</option>
@@ -184,21 +211,25 @@ export const BookingForm = () => {
             </div>
             
             <div className="flex flex-col mb-6">
-              <label className="text-sm font-medium text-slate-700 mb-1.5">Special Instructions (Optional)</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Special Instructions (Optional)</label>
               <textarea 
                 name="instructions"
                 value={formData.instructions}
                 onChange={handleChange}
                 placeholder="e.g. Please do not fold shirts, use cold water only..."
                 rows="3"
-                className="px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:border-brand-500 focus:ring-brand-100 resize-y"
+                className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:border-brand-500 focus:ring-brand-100 resize-y"
               />
             </div>
 
             <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-100 dark:border-slate-700 mb-6">
-              <div className="flex justify-between items-center mb-3 text-slate-600 dark:text-slate-400">
-                <span>Service: {selectedService.name}</span>
-                <span>{formatPrice(selectedService.price)}</span>
+              <div className="flex flex-col gap-2 mb-4">
+                {SERVICES.filter(s => selectedServices.includes(s.id)).map(s => (
+                  <div key={s.id} className="flex justify-between items-center text-slate-600 dark:text-slate-400 text-sm">
+                    <span>{s.name}</span>
+                    <span>{formatPrice(s.price)}</span>
+                  </div>
+                ))}
               </div>
               {getDetergentPrice() > 0 && (
                 <div className="flex justify-between items-center mb-3 text-slate-600 dark:text-slate-400">

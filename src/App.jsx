@@ -7,6 +7,7 @@ import { Home } from './pages/Home';
 import { Login } from './pages/Auth/Login';
 import { Register } from './pages/Auth/Register';
 import { BookingForm } from './pages/Booking/BookingForm';
+import { BookingSuccess } from './pages/Booking/BookingSuccess';
 import { UserDashboard } from './pages/Dashboard/UserDashboard';
 import { AdminDashboard } from './pages/Dashboard/AdminDashboard';
 import { Settings } from './pages/Dashboard/Settings';
@@ -39,6 +40,15 @@ const PublicOnlyRoute = ({ children }) => {
   return children;
 };
 
+// Wrapper to redirect Admins away from Customer Booking
+const BookingWrapper = ({ children }) => {
+  const { isAdmin } = useAuth();
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+  return children;
+};
+
 function App() {
   return (
     <SettingsProvider>
@@ -60,7 +70,17 @@ function App() {
               path="/booking" 
               element={
                 <ProtectedRoute>
-                  <BookingForm />
+                  <BookingWrapper>
+                    <BookingForm />
+                  </BookingWrapper>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/booking/success" 
+              element={
+                <ProtectedRoute>
+                  <BookingSuccess />
                 </ProtectedRoute>
               } 
             />

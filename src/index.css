@@ -1,19 +1,41 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
-@custom-variant dark (&:where(.dark, .dark *));
+
+@variant dark (&:where(.dark, .dark *));
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+    @apply bg-slate-50 text-slate-900 font-sans antialiased dark:bg-slate-950 dark:text-slate-200;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-semibold text-slate-900;
+    @apply font-heading font-semibold text-slate-900 dark:text-white;
   }
 }
 
 @layer components {
   .glass-panel {
     @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-soft;
+  }
+}
+
+@media print {
+  @page {
+    margin: 0;
+  }
+  body {
+    margin: 1cm;
+    background: white !important;
+  }
+  nav, footer, .print-hidden {
+    display: none !important;
+  }
+  .max-w-7xl, .max-w-4xl, .max-w-2xl {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .mt-16 {
+    margin-top: 0 !important;
   }
 }
