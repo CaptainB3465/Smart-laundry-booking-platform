@@ -12,7 +12,10 @@ import { UserDashboard } from './pages/Dashboard/UserDashboard';
 import { AdminDashboard } from './pages/Dashboard/AdminDashboard';
 import { Settings } from './pages/Dashboard/Settings';
 import { SettingsProvider } from './context/SettingsContext';
+import app from './firebase';
 import './index.css';
+
+console.log("Firebase App Initialized:", app);
 
 // Protected Route for Authenticated Users
 const ProtectedRoute = ({ children, requireAdmin = false }) => {

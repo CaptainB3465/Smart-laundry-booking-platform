@@ -6,8 +6,8 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 let mockUsers = [
   {
     uid: 'admin123',
-    email: 'munyuab3465@gmail.com',
-    password: 'gitere254',
+    email: import.meta.env.VITE_ADMIN_EMAIL || 'admin@laundry.com',
+    password: import.meta.env.VITE_ADMIN_PASSWORD || 'admin123',
     displayName: 'Admin',
     role: 'admin',
   },
