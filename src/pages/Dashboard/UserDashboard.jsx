@@ -12,7 +12,7 @@ export const UserDashboard = () => {
   const { currentUser } = useAuth();
   const { currency } = useSettings();
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Terminated default loading state
   const navigate = useNavigate();
 
   const formatPrice = (price) => {
@@ -62,21 +62,8 @@ export const UserDashboard = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
-        <p className="text-slate-500 animate-pulse text-sm font-medium">Fetching your orders...</p>
-        <button 
-          onClick={() => setLoading(false)}
-          className="mt-4 text-xs text-slate-400 hover:text-brand-600 underline"
-        >
-          Taking too long? Click here.
-        </button>
-      </div>
-    );
-  }
-
+  // Loading effect terminated - rendering content immediately
+  
   return (
     <div className="animate-fade-in">
       <div className="relative overflow-hidden bg-brand-600 rounded-3xl p-6 sm:p-8 mb-10 text-white shadow-xl shadow-brand-500/20 group">

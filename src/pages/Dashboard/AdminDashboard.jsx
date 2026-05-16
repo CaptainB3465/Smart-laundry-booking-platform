@@ -44,7 +44,7 @@ export const AdminDashboard = () => {
   const { currency } = useSettings();
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Terminated default loading state
   const [updatingId, setUpdatingId] = useState(null);
   const [activeView, setActiveView] = useState('overview'); // overview, orders, customers
 
@@ -131,26 +131,8 @@ export const AdminDashboard = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  if (loading) {
-    return (
-      <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
-        <div className="relative">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-brand-600"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Activity size={24} className="text-brand-600 animate-pulse" />
-          </div>
-        </div>
-        <p className="text-slate-500 animate-pulse text-sm font-medium">Initialising Command Center...</p>
-        <button 
-          onClick={() => setLoading(false)}
-          className="mt-4 text-xs text-slate-400 hover:text-brand-600 underline"
-        >
-          Taking too long? Click here.
-        </button>
-      </div>
-    );
-  }
-
+  // Loading effect terminated - rendering content immediately
+  
   return (
     <div className="flex flex-col lg:flex-row gap-8 animate-fade-in">
       {/* Admin Sidebar Navigation */}
