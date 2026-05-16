@@ -29,7 +29,7 @@ export const BookingForm = () => {
   const [selectedServices, setSelectedServices] = useState([SERVICES[0].id]);
   const [formData, setFormData] = useState({
     fullName: currentUser?.displayName || '',
-    phone: '',
+    phone: '', // Users only input 9 digits
     location: '',
     pickupDate: '',
     detergent: 'standard',
@@ -38,6 +38,13 @@ export const BookingForm = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value.replace(/\D/g, ''); // Numbers only
+    if (value.length <= 9) {
+      setFormData({ ...formData, phone: value });
+    }
+  };
 
   const toggleService = (id) => {
     setSelectedServices(prev => {
@@ -82,6 +89,10 @@ export const BookingForm = () => {
       return setError('Please fill in all fields');
     }
 
+    if (formData.phone.length !== 9) {
+      return setError('Phone number must be exactly 9 digits');
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -90,6 +101,7 @@ export const BookingForm = () => {
       const newOrder = await createOrder({
         userId: currentUser.uid,
         ...formData,
+        phone: `+254${formData.phone}`, // Prefix with Kenya code
         serviceType: SERVICES.filter(s => selectedServices.includes(s.id)).map(s => s.name).join(', '),
         price: calculatedPrice,
       });
@@ -162,14 +174,24 @@ export const BookingForm = () => {
                 onChange={handleChange}
                 required
               />
-              <Input
-                label="Phone Number"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
+              <div className="flex flex-col mb-4">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Phone Number</label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 text-sm font-semibold">
+                    +254
+                  </span>
+                  <input
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handlePhoneChange}
+                    placeholder="7XXXXXXXX"
+                    className="flex-1 min-w-0 block w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-r-lg text-slate-900 dark:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:border-brand-500 focus:ring-brand-100"
+                    required
+                  />
+                </div>
+                <p className="mt-1 text-[10px] text-slate-400">Enter exactly 9 digits after +254</p>
+              </div>
             </div>
             
             <Input

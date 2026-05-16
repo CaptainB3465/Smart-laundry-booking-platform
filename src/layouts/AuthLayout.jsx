@@ -11,8 +11,8 @@ export const AuthLayout = () => {
         {/* Ken Burns Animated Background */}
         <div className="absolute inset-0 animate-ken-burns">
           <img 
-            src="/bg.jpg" 
-            alt="Background" 
+            src="/premium_laundry_bg_1778956713611.png" 
+            alt="Premium Laundry Service" 
             className="w-full h-full object-cover opacity-50"
           />
         </div>

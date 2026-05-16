@@ -20,9 +20,9 @@ export const Home = () => {
           {/* Animated Background Image */}
           <div className="absolute inset-0 animate-ken-burns">
             <img 
-              src="/bg.jpg" 
-              alt="" 
-              className="w-full h-full object-cover opacity-60 dark:opacity-30"
+              src="/premium_laundry_bg_1778956713611.png" 
+              alt="Premium Laundry Service" 
+              className="w-full h-full object-cover opacity-60 dark:opacity-40"
             />
           </div>
           

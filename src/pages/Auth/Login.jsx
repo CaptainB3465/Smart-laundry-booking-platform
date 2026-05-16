@@ -34,9 +34,11 @@ export const Login = () => {
     <div className="relative">
       <Link 
         to="/" 
-        className="absolute -top-6 left-0 flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-brand-600 transition-colors"
+        className="absolute -top-10 left-0 sm:-left-4 flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-brand-600 transition-all hover:-translate-x-1 group"
       >
-        <ArrowLeft size={16} />
+        <div className="p-1.5 rounded-full bg-slate-100 group-hover:bg-brand-50 transition-colors">
+          <ArrowLeft size={16} />
+        </div>
         Back to Home
       </Link>
       <div>
