@@ -265,7 +265,7 @@ export const BookingForm = () => {
 
             <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-100 dark:border-slate-700 mb-6">
               <div className="flex flex-col gap-2 mb-4">
-                {SERVICES.filter(s => selectedServices.includes(s.id)).map(s => (
+                {services.filter(s => selectedServices.includes(s.id)).map(s => (
                   <div key={s.id} className="flex justify-between items-center text-slate-600 dark:text-slate-400 text-sm">
                     <span>{s.name}</span>
                     <span>{formatPrice(s.price)}</span>
