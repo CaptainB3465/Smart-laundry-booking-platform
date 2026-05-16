@@ -57,11 +57,7 @@ function App() {
     <SettingsProvider>
       <AuthProvider>
         <Router>
-          <Suspense fallback={
-            <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
-            </div>
-          }>
+          <Suspense fallback={null}>
             <Routes>
             {/* Landing Page without standard App Layout to allow full screen Hero */}
             <Route path="/" element={<Home />} />
