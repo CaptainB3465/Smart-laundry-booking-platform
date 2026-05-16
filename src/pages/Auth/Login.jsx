@@ -70,6 +70,7 @@ export const Login = () => {
           placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          maxLength={16}
           required
         />
         

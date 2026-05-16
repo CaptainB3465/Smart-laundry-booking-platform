@@ -44,9 +44,33 @@ export const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
+    // Name Validation: Only letters and spaces
+    if (!/^[a-zA-Z\s]+$/.test(name)) {
+      return setError('Full Name can only contain letters (no numbers or symbols).');
+    }
+
+    // Email Validation: Must end with @gmail.com
+    if (!email.endsWith('@gmail.com')) {
+      return setError('Email must end with @gmail.com');
+    }
+    
+    // Email Validation: Entirely lowercase
+    if (email !== email.toLowerCase()) {
+      return setError('Email must be entirely lowercase.');
+    }
+
+    // Email Validation: Prefix can only be lowercase letters (no numbers, dots, or symbols)
+    const emailPrefix = email.split('@')[0];
+    if (!/^[a-z]+$/.test(emailPrefix)) {
+      return setError('The name before @gmail.com can only contain lowercase letters (no numbers or symbols).');
+    }
+
+    // Password Validation
     if (password.length < 8) {
       return setError('Password must be at least 8 characters');
+    }
+    if (password.length > 16) {
+      return setError('Password cannot exceed 16 characters.');
     }
     if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
       return setError('Password must contain letters, numbers, and symbols');
@@ -111,6 +135,7 @@ export const Register = () => {
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            maxLength={16}
             required
           />
           <button
@@ -149,6 +174,7 @@ export const Register = () => {
           type={showPassword ? 'text' : 'password'}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
+          maxLength={16}
           required
         />
         <Button type="submit" fullWidth loading={loading} className="mt-6">
