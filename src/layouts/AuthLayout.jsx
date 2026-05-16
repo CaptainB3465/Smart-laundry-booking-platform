@@ -25,17 +25,17 @@ export const AuthLayout = () => {
         <div className="absolute inset-0 bg-slate-50/20 dark:bg-slate-950/60 backdrop-blur-[2px]" />
       </div>
 
-      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md mb-6 animate-fade-in-down">
-        <div className="flex justify-center items-center gap-2 text-slate-900 dark:text-white">
-          <div className="p-2 bg-brand-500 rounded-xl shadow-lg shadow-brand-500/20">
+      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-[400px] mb-8 animate-fade-in-down">
+        <div className="flex justify-center items-center gap-3 text-slate-900 dark:text-white">
+          <div className="p-2.5 bg-brand-500 rounded-2xl shadow-lg shadow-brand-500/20">
             <Droplets size={32} className="text-white" />
           </div>
-          <span className="text-4xl font-heading font-bold tracking-tight">{companyName}</span>
+          <span className="text-3xl sm:text-4xl font-heading font-bold tracking-tight">{companyName}</span>
         </div>
       </div>
 
-      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md animate-fade-in-up">
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl py-10 px-4 shadow-2xl sm:rounded-3xl sm:px-12 border border-white/20 dark:border-slate-700/50">
+      <div className="relative z-10 mx-4 sm:mx-auto sm:w-full sm:max-w-[400px] animate-fade-in-up">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl py-10 px-6 shadow-2xl rounded-3xl sm:px-10 border border-white/40 dark:border-slate-800/50">
           <Outlet />
         </div>
         

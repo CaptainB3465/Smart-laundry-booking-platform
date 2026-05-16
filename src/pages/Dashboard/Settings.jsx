@@ -18,6 +18,11 @@ export const Settings = () => {
   const [localCompanyName, setLocalCompanyName] = useState(companyName);
   const [localCurrency, setLocalCurrency] = useState(currency);
   const [saved, setSaved] = useState(false);
+  
+  // Alert/Status State for Account Actions
+  const [accountStatus, setAccountStatus] = useState({ type: '', message: '' });
+
+  const clearStatus = () => setTimeout(() => setAccountStatus({ type: '', message: '' }), 5000);
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -44,11 +49,14 @@ export const Settings = () => {
   const handleChangePassword = async () => {
     try {
       setProfileLoading(true);
+      setAccountStatus({ type: 'info', message: 'Sending reset email...' });
       await resetPassword(currentUser.email);
-      alert(`A password reset email has been sent to ${currentUser.email}. Please check your inbox.`);
+      setAccountStatus({ type: 'success', message: `A password reset email has been sent to ${currentUser.email}.` });
+      clearStatus();
     } catch (error) {
       console.error("Failed to send reset email", error);
-      alert("Error: " + error.message);
+      setAccountStatus({ type: 'error', message: error.message });
+      clearStatus();
     } finally {
       setProfileLoading(false);
     }
@@ -62,16 +70,20 @@ export const Settings = () => {
     if (confirmation) {
       try {
         setProfileLoading(true);
+        setAccountStatus({ type: 'info', message: 'Deleting account...' });
         await deleteAccount();
-        alert("Account deleted successfully.");
-        // Firebase automatically triggers logout and redirects
+        setAccountStatus({ type: 'success', message: 'Account deleted successfully. Redirecting...' });
       } catch (error) {
         console.error("Failed to delete account", error);
         if (error.code === 'auth/requires-recent-login') {
-          alert("For security reasons, you must have recently logged in to delete your account. Please log out and log back in, then try again.");
+          setAccountStatus({ 
+            type: 'error', 
+            message: "For security, please log out and log back in before deleting your account." 
+          });
         } else {
-          alert("Error: " + error.message);
+          setAccountStatus({ type: 'error', message: error.message });
         }
+        clearStatus();
       } finally {
         setProfileLoading(false);
       }
@@ -97,6 +109,15 @@ export const Settings = () => {
             </CardTitle>
           </CardHeader>
           <CardBody>
+            {accountStatus.message && (
+              <div className={`mb-6 p-4 rounded-xl text-sm font-medium border animate-fade-in ${
+                accountStatus.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 
+                accountStatus.type === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 
+                'bg-blue-50 border-blue-200 text-blue-700'
+              }`}>
+                {accountStatus.message}
+              </div>
+            )}
             <form onSubmit={handleSaveProfile}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Input

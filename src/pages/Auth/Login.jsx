@@ -41,22 +41,25 @@ export const Login = () => {
         </div>
         Back to Home
       </Link>
-      <div>
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Welcome Back</h2>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Sign in to your account</p>
+      <div className="text-center mb-10">
+        <div className="inline-flex p-3 rounded-2xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 mb-4 animate-bounce">
+          <Droplets size={28} className="text-brand-600" />
+        </div>
+        <h2 className="text-3xl font-heading font-extrabold text-slate-900 dark:text-white tracking-tight">Welcome Back</h2>
+        <p className="mt-2 text-slate-500 dark:text-slate-400 font-medium">Log in to manage your laundry effortlessly.</p>
       </div>
 
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm text-center">
+        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-2xl text-sm text-center font-medium animate-shake">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <Input
-          label="Email"
+          label="Email Address"
           type="email"
+          placeholder="name@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -64,21 +67,34 @@ export const Login = () => {
         <Input
           label="Password"
           type="password"
+          placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <Button type="submit" fullWidth loading={loading} className="mt-6">
-          Sign In
+        
+        <div className="flex items-center justify-between text-xs pt-1">
+          <label className="flex items-center gap-2 cursor-pointer text-slate-500 hover:text-brand-600 transition-colors">
+            <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+            <span>Remember me</span>
+          </label>
+          <button type="button" onClick={() => alert("Password reset link sent to your email (Demo)")} className="font-bold text-brand-600 hover:text-brand-500 transition-colors">
+            Forgot password?
+          </button>
+        </div>
+
+        <Button type="submit" fullWidth loading={loading} className="py-4 text-lg font-bold shadow-xl shadow-brand-500/20 mt-4">
+          Sign In to Account
         </Button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
-        Don't have an account?{' '}
-        <Link to="/register" className="font-medium text-brand-600 hover:text-brand-500 dark:text-brand-400">
-          Sign up
-        </Link>
-      </div>
+      <div className="mt-8 text-center">
+        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+          Don't have an account yet?{' '}
+          <Link to="/register" className="font-bold text-brand-600 hover:text-brand-500 transition-all border-b-2 border-transparent hover:border-brand-500">
+            Create one for free
+          </Link>
+        </p>
       </div>
     </div>
   );
