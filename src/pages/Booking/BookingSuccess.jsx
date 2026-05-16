@@ -3,7 +3,7 @@ import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useSettings } from '../../context/SettingsContext';
 import { Card, CardBody } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { CheckCircle, Printer, Calendar, MapPin, Package, CreditCard } from 'lucide-react';
+import { CheckCircle, Printer, Calendar, MapPin, Package, CreditCard, FileText } from 'lucide-react';
 
 export const BookingSuccess = () => {
   const location = useLocation();
@@ -86,6 +86,18 @@ export const BookingSuccess = () => {
                   <p className="text-slate-900 dark:text-white font-medium">{order.location}</p>
                 </div>
               </div>
+
+              {order.instructions && order.instructions.trim() !== '' && (
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center text-brand-600 shrink-0">
+                    <FileText size={20} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider mb-1">Special Instructions</p>
+                    <p className="text-slate-900 dark:text-white font-medium italic">"{order.instructions}"</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Financials */}
