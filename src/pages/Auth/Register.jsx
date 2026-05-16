@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { Eye, EyeOff, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, Shield, ShieldAlert, ShieldCheck, ArrowLeft } from 'lucide-react';
 
 export const Register = () => {
   const [name, setName] = useState('');
@@ -69,10 +69,19 @@ export const Register = () => {
   };
 
   return (
-    <div>
+    <div className="relative">
+      <Link 
+        to="/" 
+        className="absolute -top-10 left-0 sm:-left-4 flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-brand-600 transition-all hover:-translate-x-1 group"
+      >
+        <div className="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 group-hover:bg-brand-50 dark:group-hover:bg-brand-900/30 transition-colors">
+          <ArrowLeft size={16} />
+        </div>
+        Back to Home
+      </Link>
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-slate-900">Create Account</h2>
-        <p className="mt-2 text-sm text-slate-600">Join SmartWash today</p>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Create Account</h2>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Join SmartWash today</p>
       </div>
 
       {error && (
@@ -147,9 +156,9 @@ export const Register = () => {
         </Button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-slate-600">
+      <div className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
         Already have an account?{' '}
-        <Link to="/login" className="font-medium text-brand-600 hover:text-brand-500">
+        <Link to="/login" className="font-medium text-brand-600 hover:text-brand-500 dark:text-brand-400">
           Sign in
         </Link>
       </div>

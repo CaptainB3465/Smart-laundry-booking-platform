@@ -36,15 +36,15 @@ export const Login = () => {
         to="/" 
         className="absolute -top-10 left-0 sm:-left-4 flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-brand-600 transition-all hover:-translate-x-1 group"
       >
-        <div className="p-1.5 rounded-full bg-slate-100 group-hover:bg-brand-50 transition-colors">
+        <div className="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 group-hover:bg-brand-50 dark:group-hover:bg-brand-900/30 transition-colors">
           <ArrowLeft size={16} />
         </div>
         Back to Home
       </Link>
       <div>
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-slate-900">Welcome Back</h2>
-        <p className="mt-2 text-sm text-slate-600">Sign in to your account</p>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Welcome Back</h2>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Sign in to your account</p>
       </div>
 
       {error && (
@@ -73,9 +73,9 @@ export const Login = () => {
         </Button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-slate-600">
+      <div className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
         Don't have an account?{' '}
-        <Link to="/register" className="font-medium text-brand-600 hover:text-brand-500">
+        <Link to="/register" className="font-medium text-brand-600 hover:text-brand-500 dark:text-brand-400">
           Sign up
         </Link>
       </div>

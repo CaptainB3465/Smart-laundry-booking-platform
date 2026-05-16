@@ -22,13 +22,13 @@ export const AuthLayout = () => {
         <div className="absolute top-1/2 -right-24 w-80 h-80 bg-accent-600/20 rounded-full blur-[80px] animate-blob animation-delay-2000" />
         <div className="absolute -bottom-24 left-1/4 w-96 h-96 bg-primary-600/20 rounded-full blur-[100px] animate-blob animation-delay-4000" />
 
-        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-slate-50/20 dark:bg-slate-950/60 backdrop-blur-[2px]" />
       </div>
 
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md mb-6 animate-fade-in-down">
-        <div className="flex justify-center items-center gap-2 text-white">
+        <div className="flex justify-center items-center gap-2 text-slate-900 dark:text-white">
           <div className="p-2 bg-brand-500 rounded-xl shadow-lg shadow-brand-500/20">
-            <Droplets size={32} />
+            <Droplets size={32} className="text-white" />
           </div>
           <span className="text-4xl font-heading font-bold tracking-tight">{companyName}</span>
         </div>
@@ -39,7 +39,7 @@ export const AuthLayout = () => {
           <Outlet />
         </div>
         
-        <p className="mt-8 text-center text-sm text-white/80 font-medium">
+        <p className="mt-8 text-center text-sm text-slate-500 dark:text-white/80 font-medium">
           &copy; {new Date().getFullYear()} {companyName} Inc. All rights reserved.
         </p>
       </div>
