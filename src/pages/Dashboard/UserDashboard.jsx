@@ -144,6 +144,34 @@ export const UserDashboard = () => {
                     )}
                   </div>
                 </div>
+
+                {order.status === 'Completed' && (
+                  <div className="mt-4 p-4 bg-brand-50 dark:bg-brand-900/20 rounded-xl border border-brand-100 dark:border-brand-800/50 flex items-start gap-3 animate-fade-in">
+                    <div className="p-1.5 bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 rounded-lg shrink-0 mt-0.5">
+                      <CheckCircle size={16} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-brand-800 dark:text-brand-300">Your service has been completed!</p>
+                      <p className="text-xs text-brand-600/80 dark:text-brand-400/80 mt-1">
+                        Your laundry is fresh, clean, and ready to be shipped back to you. Thank you for trusting SmartWash with your garments!
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {order.status === 'Shipped' && (
+                  <div className="mt-4 p-4 bg-fuchsia-50 dark:bg-fuchsia-900/20 rounded-xl border border-fuchsia-100 dark:border-fuchsia-800/50 flex items-start gap-3 animate-fade-in">
+                    <div className="p-1.5 bg-fuchsia-100 dark:bg-fuchsia-900/50 text-fuchsia-600 dark:text-fuchsia-400 rounded-lg shrink-0 mt-0.5">
+                      <Package size={16} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-fuchsia-800 dark:text-fuchsia-300">Your laundry is on the way!</p>
+                      <p className="text-xs text-fuchsia-600/80 dark:text-fuchsia-400/80 mt-1">
+                        Our delivery partner has picked up your clothes and is heading to your location.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </CardBody>
             </Card>
           ))}

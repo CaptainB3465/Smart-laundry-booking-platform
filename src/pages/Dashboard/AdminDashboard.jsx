@@ -18,7 +18,7 @@ const ICON_MAP = {
 
 
 
-const STATUS_OPTIONS = ['Pending', 'Picked Up', 'Washing', 'Out for Delivery', 'Delivered'];
+const STATUS_OPTIONS = ['Pending', 'Approved', 'Declined', 'Picked Up', 'Washing', 'Completed', 'Shipped', 'Delivered'];
 
 const StatCard = ({ title, value, icon: Icon, trend, colorClass }) => (
   <Card className="border-none shadow-xl bg-white dark:bg-slate-900 relative overflow-hidden group">
