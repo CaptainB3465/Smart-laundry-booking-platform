@@ -6,7 +6,7 @@ import { createOrder, getServices } from '../../services/api';
 import { Card, CardBody } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { Shirt, Droplet, Sparkles, Package } from 'lucide-react';
+import { Shirt, Droplet, Sparkles, Package, Settings as SettingsIcon } from 'lucide-react';
 
 const ICON_MAP = {
   'Droplet': <Droplet size={32} />,
@@ -17,7 +17,7 @@ const ICON_MAP = {
 
 export const BookingForm = () => {
   const { currentUser } = useAuth();
-  const { currency } = useSettings();
+  const { currency, maintenanceMode } = useSettings();
   const navigate = useNavigate();
   
   const formatPrice = (price) => {
@@ -133,6 +133,21 @@ export const BookingForm = () => {
       console.log("BookingForm: Loading state set to false");
     }
   };
+
+  if (maintenanceMode) {
+    return (
+      <div className="max-w-2xl mx-auto py-20 px-4 text-center animate-fade-in">
+        <div className="inline-flex items-center justify-center w-24 h-24 bg-brand-50 dark:bg-brand-900/30 text-brand-600 rounded-full mb-6">
+          <SettingsIcon size={48} className="animate-spin" style={{ animationDuration: '3s' }} />
+        </div>
+        <h2 className="text-3xl font-heading font-bold text-slate-900 dark:text-white mb-4">System Under Maintenance</h2>
+        <p className="text-slate-600 dark:text-slate-400 text-lg mb-8">
+          We are currently upgrading our systems to serve you better. New bookings are temporarily paused. Thank you for your patience!
+        </p>
+        <Button onClick={() => navigate('/dashboard')} variant="outline">Return to Dashboard</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">

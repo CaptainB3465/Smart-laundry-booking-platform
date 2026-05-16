@@ -29,6 +29,14 @@ export const SettingsProvider = ({ children }) => {
       return '$';
     }
   });
+  
+  const [maintenanceMode, setMaintenanceMode] = useState(() => {
+    try {
+      return localStorage.getItem('laundry_maintenance') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
 
   // Apply theme to document element and save to localStorage
   useEffect(() => {
@@ -56,6 +64,11 @@ export const SettingsProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('laundry_currency', currency);
   }, [currency]);
+  
+  // Save maintenance mode
+  useEffect(() => {
+    localStorage.setItem('laundry_maintenance', maintenanceMode);
+  }, [maintenanceMode]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -68,7 +81,9 @@ export const SettingsProvider = ({ children }) => {
     companyName,
     setCompanyName,
     currency,
-    setCurrency
+    setCurrency,
+    maintenanceMode,
+    setMaintenanceMode
   };
 
   return (

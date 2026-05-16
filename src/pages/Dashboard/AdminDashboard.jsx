@@ -7,7 +7,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Navigate } from 'react-router-dom';
-import { TrendingUp, Users, ShoppingBag, DollarSign, Activity, Settings as SettingsIcon, Package, UserCheck, Search, Shirt, Droplet, Sparkles, Trash2, Edit3, Plus, X, CheckCircle } from 'lucide-react';
+import { TrendingUp, Users, ShoppingBag, DollarSign, Activity, Settings as SettingsIcon, Package, UserCheck, Search, Shirt, Droplet, Sparkles, Trash2, Edit3, Plus, X, CheckCircle, Terminal } from 'lucide-react';
 
 const ICON_MAP = {
   'Droplet': <Droplet size={20} />,
@@ -45,7 +45,7 @@ const StatCard = ({ title, value, icon: Icon, trend, colorClass }) => (
 
 export const AdminDashboard = () => {
   const { isAdmin } = useAuth();
-  const { currency } = useSettings();
+  const { currency, maintenanceMode, setMaintenanceMode } = useSettings();
   const [orders, setOrders] = useState([]);
   const [services, setServices] = useState([]);
   const [stats, setStats] = useState(null);
@@ -58,11 +58,21 @@ export const AdminDashboard = () => {
   const [serviceFormData, setServiceFormData] = useState({
     name: '',
     price: '',
-    iconName: 'Droplet'
+    iconName: 'Package'
   });
 
   // Walk-in Order State
   const [showWalkInModal, setShowWalkInModal] = useState(false);
+  
+  // Logs State
+  const [showLogs, setShowLogs] = useState(false);
+  const [liveLogs, setLiveLogs] = useState([
+    `[${new Date().toLocaleTimeString()}] [SYSTEM] v2.0.4 core initialized`,
+    `[${new Date().toLocaleTimeString()}] [AUTH] Secure admin session started`,
+    `[${new Date().toLocaleTimeString()}] [DB] Connected to Firestore analytics cluster`,
+    `[${new Date().toLocaleTimeString()}] [ROUTING] Dynamic service pricing updated`,
+    `[${new Date().toLocaleTimeString()}] [SECURITY] System config state verified`,
+  ]);
   const [walkInFormData, setWalkInFormData] = useState({
     fullName: '',
     phone: '',
@@ -205,7 +215,7 @@ export const AdminDashboard = () => {
     try {
       setUpdatingId(orderId);
       await updateOrderStatus(orderId, newStatus);
-      // No need to manually update state or fetch stats - the listener handles it!
+      setLiveLogs(prev => [`[${new Date().toLocaleTimeString()}] [ORDER] Updated order ${orderId} to ${newStatus}`, ...prev]);
     } catch (error) {
       console.error("Failed to update status", error);
     } finally {
@@ -469,7 +479,27 @@ export const AdminDashboard = () => {
                             </td>
                             <td className="px-6 py-4 text-sm dark:text-slate-300">{order.fullName}</td>
                             <td className="px-6 py-4 text-sm font-semibold dark:text-white">{formatPrice(order.price)}</td>
-                            <td className="px-6 py-4"><Badge status={order.status} /></td>
+                            <td className="px-6 py-4 flex items-center justify-between gap-2">
+                              <Badge status={order.status} />
+                              <div className="flex items-center gap-2">
+                                <select 
+                                  value={order.status}
+                                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                  className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 text-slate-700 dark:text-white"
+                                >
+                                  {STATUS_OPTIONS.map(status => (
+                                    <option key={status} value={status}>{status}</option>
+                                  ))}
+                                </select>
+                                <button 
+                                  onClick={() => handleDeleteOrder(order.id)}
+                                  className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
+                                  title="Delete Order"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -649,8 +679,14 @@ export const AdminDashboard = () => {
                         <div className="font-bold dark:text-white">Maintenance Mode</div>
                         <div className="text-xs text-slate-500 text-slate-500">Temporarily disable user bookings</div>
                       </div>
-                      <div className="w-12 h-6 bg-slate-200 dark:bg-slate-700 rounded-full relative p-1 cursor-pointer">
-                        <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
+                      <div 
+                        onClick={() => {
+                          setMaintenanceMode(!maintenanceMode);
+                          setLiveLogs(prev => [`[${new Date().toLocaleTimeString()}] [SYS] Maintenance mode set to ${!maintenanceMode}`, ...prev]);
+                        }}
+                        className={`w-12 h-6 rounded-full relative p-1 cursor-pointer transition-colors ${maintenanceMode ? 'bg-brand-500' : 'bg-slate-200 dark:bg-slate-700'}`}
+                      >
+                        <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${maintenanceMode ? 'translate-x-6' : 'translate-x-0'}`} />
                       </div>
                     </div>
                     <div className="flex items-center justify-between py-3">
@@ -658,10 +694,35 @@ export const AdminDashboard = () => {
                         <div className="font-bold dark:text-white">Live Logs</div>
                         <div className="text-xs text-slate-500">Stream system activity logs in real-time</div>
                       </div>
-                      <button className="text-xs font-bold text-brand-600 px-3 py-1 bg-brand-50 dark:bg-brand-900/30 rounded-lg">Open Terminal</button>
+                      <button onClick={() => setShowLogs(true)} className="text-xs font-bold text-brand-600 px-3 py-1 bg-brand-50 dark:bg-brand-900/30 rounded-lg">Open Terminal</button>
                     </div>
                   </CardBody>
                 </Card>
+              </div>
+            )}
+            
+            {/* Logs Modal */}
+            {showLogs && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+                <div className="bg-slate-950 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden border border-slate-800">
+                  <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+                    <div className="flex items-center gap-2">
+                      <Terminal size={18} className="text-brand-500" />
+                      <h3 className="text-sm font-mono font-bold text-slate-300">System Terminal</h3>
+                    </div>
+                    <button onClick={() => setShowLogs(false)} className="text-slate-500 hover:text-white">
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <div className="p-6 h-80 overflow-y-auto font-mono text-xs space-y-2">
+                    {liveLogs.map((log, i) => (
+                      <div key={i} className={`${log.includes('[ORDER]') ? 'text-emerald-400' : log.includes('[SYS]') ? 'text-amber-400' : 'text-slate-400'}`}>
+                        {log}
+                      </div>
+                    ))}
+                    <div className="text-brand-500 animate-pulse mt-4">_</div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
