@@ -159,7 +159,7 @@ export const UserDashboard = () => {
                   </div>
                 )}
                 
-                {order.status === 'Shipped' && (
+                {order.status === 'Out for Delivery' && (
                   <div className="mt-4 p-4 bg-fuchsia-50 dark:bg-fuchsia-900/20 rounded-xl border border-fuchsia-100 dark:border-fuchsia-800/50 flex items-start gap-3 animate-fade-in">
                     <div className="p-1.5 bg-fuchsia-100 dark:bg-fuchsia-900/50 text-fuchsia-600 dark:text-fuchsia-400 rounded-lg shrink-0 mt-0.5">
                       <Truck size={16} />
