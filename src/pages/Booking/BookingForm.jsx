@@ -2,20 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
-import { createOrder } from '../../services/api';
+import { createOrder, getServices } from '../../services/api';
 import { Card, CardBody } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { Shirt, Droplet, Sparkles } from 'lucide-react';
+import { Shirt, Droplet, Sparkles, Package } from 'lucide-react';
 
-const SERVICES = [
-  { id: 'wash', name: 'Wash & Fold', price: 25.0, icon: <Droplet size={32} /> },
-  { id: 'dry-clean', name: 'Dry Clean', price: 45.0, icon: <Shirt size={32} /> },
-  { id: 'ironing', name: 'Ironing Only', price: 20.0, icon: <Sparkles size={32} /> },
-  { id: 'bedding', name: 'Bedding & Linen', price: 35.0, icon: <Droplet size={32} className="rotate-180" /> },
-  { id: 'curtains', name: 'Curtains & Drapes', price: 55.0, icon: <Shirt size={32} className="opacity-70" /> },
-  { id: 'shoes', name: 'Shoe Cleaning', price: 15.0, icon: <Sparkles size={32} className="scale-110" /> },
-];
+const ICON_MAP = {
+  'Droplet': <Droplet size={32} />,
+  'Shirt': <Shirt size={32} />,
+  'Sparkles': <Sparkles size={32} />,
+  'Package': <Package size={32} />,
+};
 
 export const BookingForm = () => {
   const { currentUser } = useAuth();
@@ -26,10 +24,11 @@ export const BookingForm = () => {
     return `${currency === 'KES' ? 'KES ' : currency}${price.toFixed(2)}`;
   };
   
-  const [selectedServices, setSelectedServices] = useState([SERVICES[0].id]);
+  const [services, setServices] = useState([]);
+  const [selectedServices, setSelectedServices] = useState([]);
   const [formData, setFormData] = useState({
     fullName: currentUser?.displayName || '',
-    phone: '', // Users only input 9 digits
+    phone: '',
     location: '',
     pickupDate: '',
     detergent: 'standard',
@@ -37,7 +36,25 @@ export const BookingForm = () => {
     instructions: '',
   });
   const [loading, setLoading] = useState(false);
+  const [fetchingServices, setFetchingServices] = useState(true);
   const [error, setError] = useState('');
+
+  React.useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const data = await getServices();
+        setServices(data);
+        if (data.length > 0) {
+          setSelectedServices([data[0].id]);
+        }
+      } catch (err) {
+        console.error("Error fetching services:", err);
+      } finally {
+        setFetchingServices(false);
+      }
+    };
+    fetchServices();
+  }, []);
 
   const handlePhoneChange = (e) => {
     const value = e.target.value.replace(/\D/g, ''); // Numbers only
@@ -73,7 +90,7 @@ export const BookingForm = () => {
   };
 
   const getBasePrice = () => {
-    return SERVICES
+    return services
       .filter(s => selectedServices.includes(s.id))
       .reduce((sum, s) => sum + s.price, 0);
   };
@@ -102,7 +119,7 @@ export const BookingForm = () => {
         userId: currentUser.uid,
         ...formData,
         phone: `+254${formData.phone}`, // Prefix with Kenya code
-        serviceType: SERVICES.filter(s => selectedServices.includes(s.id)).map(s => s.name).join(', '),
+        serviceType: services.filter(s => selectedServices.includes(s.id)).map(s => s.name).join(', '),
         price: calculatedPrice,
       });
       
@@ -124,39 +141,32 @@ export const BookingForm = () => {
         <p className="text-slate-600 dark:text-slate-400 text-lg">Tell us what you need and when you need it.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        {SERVICES.map((service) => {
-          const isSelected = selectedServices.includes(service.id);
-          return (
-            <div
-              key={service.id}
-              onClick={() => toggleService(service.id)}
-              className={`relative cursor-pointer rounded-2xl p-6 text-center transition-all duration-200 border-2 ${
-                isSelected 
-                  ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-md ring-2 ring-brand-100 dark:ring-brand-900' 
-                  : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-soft'
-              }`}
-            >
-              {isSelected && (
-                <div className="absolute top-3 right-3 w-6 h-6 bg-brand-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                  ✓
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+            {fetchingServices ? (
+              <div className="col-span-full py-12 flex justify-center">
+                <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : services.map((service) => (
+              <button
+                key={service.id}
+                type="button"
+                onClick={() => toggleService(service.id)}
+                className={`flex flex-col items-center p-6 rounded-2xl border-2 transition-all group ${
+                  selectedServices.includes(service.id)
+                    ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 text-brand-600'
+                    : 'border-slate-100 dark:border-slate-800 hover:border-brand-200'
+                }`}
+              >
+                <div className={`mb-3 transition-transform group-hover:scale-110 ${selectedServices.includes(service.id) ? 'text-brand-600' : 'text-slate-400'}`}>
+                  {ICON_MAP[service.iconName] || <Package size={32} />}
                 </div>
-              )}
-              <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
-                isSelected ? 'bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
-              }`}>
-                {service.icon}
-              </div>
-              <div className={`font-semibold text-lg mb-1 ${isSelected ? 'text-brand-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
-                {service.name}
-              </div>
-              <div className="text-sm text-slate-500 dark:text-slate-400">
-                {formatPrice(service.price)}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                <span className={`text-sm font-bold ${selectedServices.includes(service.id) ? 'text-brand-700 dark:text-brand-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                  {service.name}
+                </span>
+                <span className="text-[10px] mt-1 font-medium opacity-60">+{formatPrice(service.price)}</span>
+              </button>
+            ))}
+          </div>
 
       <Card>
         <CardBody>

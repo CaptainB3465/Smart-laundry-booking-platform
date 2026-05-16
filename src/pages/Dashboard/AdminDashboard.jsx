@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
-import { subscribeToAllOrders, updateOrderStatus, deleteOrder } from '../../services/api';
+import { subscribeToAllOrders, updateOrderStatus, deleteOrder, subscribeToServices, addService, updateService, deleteService } from '../../services/api';
 import { Card, CardBody } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
 import { Navigate } from 'react-router-dom';
-import { TrendingUp, Users, ShoppingBag, DollarSign, Activity, Settings as SettingsIcon, Package, UserCheck, Search, Shirt, Droplet, Sparkles, Trash2, Edit3, Plus } from 'lucide-react';
+import { TrendingUp, Users, ShoppingBag, DollarSign, Activity, Settings as SettingsIcon, Package, UserCheck, Search, Shirt, Droplet, Sparkles, Trash2, Edit3, Plus, X, CheckCircle } from 'lucide-react';
 
-const SERVICES = [
-  { id: 'wash', name: 'Wash & Fold', price: 25.0, icon: <Droplet size={20} /> },
-  { id: 'dry-clean', name: 'Dry Clean', price: 45.0, icon: <Shirt size={20} /> },
-  { id: 'ironing', name: 'Ironing Only', price: 20.0, icon: <Sparkles size={20} /> },
-  { id: 'bedding', name: 'Bedding & Linen', price: 35.0, icon: <Droplet size={20} className="rotate-180" /> },
-];
+const ICON_MAP = {
+  'Droplet': <Droplet size={20} />,
+  'Shirt': <Shirt size={20} />,
+  'Sparkles': <Sparkles size={20} />,
+  'Package': <Package size={20} />,
+};
+
+
 
 const STATUS_OPTIONS = ['Pending', 'Picked Up', 'Washing', 'Out for Delivery', 'Delivered'];
 
@@ -43,13 +47,22 @@ export const AdminDashboard = () => {
   const { isAdmin } = useAuth();
   const { currency } = useSettings();
   const [orders, setOrders] = useState([]);
+  const [services, setServices] = useState([]);
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(false); // Terminated default loading state
-  const [updatingId, setUpdatingId] = useState(null);
-  const [activeView, setActiveView] = useState('overview'); // overview, orders, customers
+  const [loading, setLoading] = useState(false);
+  const [activeView, setActiveView] = useState('overview');
+  
+  // Service Modal State
+  const [showServiceModal, setShowServiceModal] = useState(false);
+  const [editingService, setEditingService] = useState(null);
+  const [serviceFormData, setServiceFormData] = useState({
+    name: '',
+    price: '',
+    iconName: 'Droplet'
+  });
 
   const formatPrice = (price) => {
-    return `${currency === 'KES' ? 'KES ' : currency}${price.toFixed(2)}`;
+    return `${currency === 'KES' ? 'KES ' : currency}${Number(price).toFixed(2)}`;
   };
 
   useEffect(() => {
@@ -90,13 +103,65 @@ export const AdminDashboard = () => {
       setLoading(false);
     }
 
+    // Subscribe to services
+    const unsubServices = subscribeToServices((data) => {
+      setServices(data);
+    });
+
     return () => {
-      if (unsubscribe) {
-        console.log("AdminDashboard: Unsubscribing from all orders");
-        unsubscribe();
-      }
+      if (unsubscribe) unsubscribe();
+      if (unsubServices) unsubServices();
     };
   }, [isAdmin]);
+
+  const handleOpenAddService = () => {
+    setEditingService(null);
+    setServiceFormData({ name: '', price: '', iconName: 'Droplet' });
+    setShowServiceModal(true);
+  };
+
+  const handleOpenEditService = (service) => {
+    setEditingService(service);
+    setServiceFormData({ 
+      name: service.name, 
+      price: service.price.toString(), 
+      iconName: service.iconName || 'Droplet' 
+    });
+    setShowServiceModal(true);
+  };
+
+  const handleSaveService = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const data = {
+        name: serviceFormData.name,
+        price: parseFloat(serviceFormData.price),
+        iconName: serviceFormData.iconName
+      };
+
+      if (editingService) {
+        await updateService(editingService.id, data);
+      } else {
+        await addService(data);
+      }
+      setShowServiceModal(false);
+    } catch (error) {
+      alert("Error saving service: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteService = async (id) => {
+    if (window.confirm("Are you sure you want to delete this service?")) {
+      try {
+        await deleteService(id);
+      } catch (error) {
+        alert("Error deleting service: " + error.message);
+      }
+    }
+  };
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
@@ -429,26 +494,109 @@ export const AdminDashboard = () => {
             {activeView === 'services' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between px-2">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">Service Management</h3>
-                  <button className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-brand-500/20">Add New Service</button>
+                  <h3 className="text-xl font-bold text-primary">Service Management</h3>
+                  <button 
+                    onClick={handleOpenAddService}
+                    className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-brand-500/20 hover:bg-brand-700 transition-all"
+                  >
+                    Add New Service
+                  </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {SERVICES.map(s => (
-                    <Card key={s.id} className="border-slate-100 dark:border-slate-800">
+                  {services.map(s => (
+                    <Card key={s.id} className="border-slate-100 dark:border-slate-800 group">
                       <CardBody className="p-4 flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-2 bg-brand-50 dark:bg-brand-900/30 text-brand-600 rounded-lg">
-                            {s.icon}
+                          <div className="p-3 bg-brand-50 dark:bg-brand-900/30 text-brand-600 rounded-xl group-hover:scale-110 transition-transform">
+                            {ICON_MAP[s.iconName] || <Package size={20} />}
                           </div>
                           <div>
-                            <div className="font-bold dark:text-white">{s.name}</div>
-                            <div className="text-xs text-slate-500">Base Price: {formatPrice(s.price)}</div>
+                            <div className="font-bold text-primary">{s.name}</div>
+                            <div className="text-xs text-secondary font-medium">Base Price: {formatPrice(s.price)}</div>
                           </div>
                         </div>
-                        <button className="text-xs font-bold text-slate-400 hover:text-brand-600">Edit</button>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => handleOpenEditService(s)}
+                            className="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-all"
+                            title="Edit Service"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteService(s.id)}
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                            title="Delete Service"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </CardBody>
                     </Card>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Service Modal */}
+            {showServiceModal && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+                <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-scale-in">
+                  <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                    <h3 className="text-xl font-bold text-primary">
+                      {editingService ? 'Edit Service' : 'Add New Service'}
+                    </h3>
+                    <button onClick={() => setShowServiceModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                      <X size={20} />
+                    </button>
+                  </div>
+                  <form onSubmit={handleSaveService} className="p-6 space-y-4">
+                    <Input 
+                      label="Service Name"
+                      placeholder="e.g. Wash & Fold"
+                      value={serviceFormData.name}
+                      onChange={(e) => setServiceFormData({...serviceFormData, name: e.target.value})}
+                      required
+                    />
+                    <Input 
+                      label="Base Price"
+                      type="number"
+                      step="0.01"
+                      placeholder="e.g. 25.00"
+                      value={serviceFormData.price}
+                      onChange={(e) => setServiceFormData({...serviceFormData, price: e.target.value})}
+                      required
+                    />
+                    
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-secondary">Service Icon</label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {Object.keys(ICON_MAP).map(iconName => (
+                          <button
+                            key={iconName}
+                            type="button"
+                            onClick={() => setServiceFormData({...serviceFormData, iconName})}
+                            className={`p-3 rounded-xl border-2 flex items-center justify-center transition-all ${
+                              serviceFormData.iconName === iconName 
+                                ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 text-brand-600' 
+                                : 'border-slate-100 dark:border-slate-800 hover:border-slate-200'
+                            }`}
+                          >
+                            {ICON_MAP[iconName]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-4 flex gap-3">
+                      <Button type="button" variant="secondary" fullWidth onClick={() => setShowServiceModal(false)}>
+                        Cancel
+                      </Button>
+                      <Button type="submit" fullWidth loading={loading}>
+                        {editingService ? 'Update Service' : 'Create Service'}
+                      </Button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}

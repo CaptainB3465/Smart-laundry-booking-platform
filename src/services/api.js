@@ -173,3 +173,70 @@ export const subscribeToAllOrders = (callback) => {
     return () => {};
   }
 };
+// --- SERVICE OPERATIONS ---
+
+export const getServices = async () => {
+  try {
+    const servicesRef = collection(db, "services");
+    const querySnapshot = await getDocs(servicesRef);
+    if (querySnapshot.empty) {
+      // Return default services if collection is empty
+      return [
+        { id: 'wash', name: 'Wash & Fold', price: 25.0, iconName: 'Droplet' },
+        { id: 'dry-clean', name: 'Dry Clean', price: 45.0, iconName: 'Shirt' },
+        { id: 'ironing', name: 'Ironing Only', price: 20.0, iconName: 'Sparkles' },
+      ];
+    }
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    return [];
+  }
+};
+
+export const addService = async (serviceData) => {
+  try {
+    const servicesRef = collection(db, "services");
+    const docRef = await addDoc(servicesRef, serviceData);
+    return { id: docRef.id, ...serviceData };
+  } catch (error) {
+    console.error("Error adding service:", error);
+    throw error;
+  }
+};
+
+export const updateService = async (serviceId, serviceData) => {
+  try {
+    const serviceRef = doc(db, "services", serviceId);
+    await updateDoc(serviceRef, serviceData);
+    return true;
+  } catch (error) {
+    console.error("Error updating service:", error);
+    throw error;
+  }
+};
+
+export const deleteService = async (serviceId) => {
+  try {
+    const serviceRef = doc(db, "services", serviceId);
+    await deleteDoc(serviceRef);
+    return true;
+  } catch (error) {
+    console.error("Error deleting service:", error);
+    throw error;
+  }
+};
+
+export const subscribeToServices = (callback) => {
+  const servicesRef = collection(db, "services");
+  return onSnapshot(servicesRef, (snapshot) => {
+    const services = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    callback(services);
+  });
+};
