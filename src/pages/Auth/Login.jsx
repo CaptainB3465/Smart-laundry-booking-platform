@@ -19,9 +19,9 @@ export const Login = () => {
       setError('');
       setLoading(true);
       await login(email, password);
-      // Navigation is handled automatically by the PublicOnlyRoute
-      // but we can explicitly call it here as well
-      navigate('/dashboard', { replace: true });
+      // Explicitly navigate to the correct portal
+      const isAdminEmail = email === import.meta.env.VITE_ADMIN_EMAIL;
+      navigate(isAdminEmail ? '/admin' : '/dashboard', { replace: true });
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to sign in. Please check your credentials.');

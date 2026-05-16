@@ -117,8 +117,7 @@ export const subscribeToUserOrders = (userId, callback) => {
   const ordersRef = collection(db, "orders");
   const q = query(
     ordersRef, 
-    where("userId", "==", userId), 
-    orderBy("createdAt", "desc")
+    where("userId", "==", userId)
   );
 
   return onSnapshot(q, (snapshot) => {
@@ -126,8 +125,11 @@ export const subscribeToUserOrders = (userId, callback) => {
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
-    }));
+    })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort in memory
     callback(orders);
+  }, (error) => {
+    console.error("Error subscribing to user orders:", error);
+    callback([]); // Return empty list on error to stop loading state
   });
 };
 
@@ -142,5 +144,8 @@ export const subscribeToAllOrders = (callback) => {
       createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
     }));
     callback(orders);
+  }, (error) => {
+    console.error("Error subscribing to all orders:", error);
+    callback([]);
   });
 };

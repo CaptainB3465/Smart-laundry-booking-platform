@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const Badge = ({ status }) => {
-  const normalizedStatus = status.toLowerCase().replace(/\s+/g, '-');
+  const normalizedStatus = status ? status.toLowerCase().replace(/\s+/g, '-') : '';
   
   const statusStyles = {
     'pending': 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-900/50',

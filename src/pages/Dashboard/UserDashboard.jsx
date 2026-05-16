@@ -36,7 +36,7 @@ export const UserDashboard = () => {
     if (window.confirm('Are you sure you want to cancel this booking?')) {
       try {
         await deleteOrder(orderId);
-        fetchOrders();
+        // No need to manually fetch, the subscription handles real-time updates
       } catch (error) {
         alert("Failed to cancel order. Please try again.");
       }

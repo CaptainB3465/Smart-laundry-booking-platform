@@ -34,10 +34,10 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
 
 // Route to redirect authenticated users AWAY from login/signup
 const PublicOnlyRoute = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, isAdmin } = useAuth();
   
   if (currentUser) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
   }
 
   return children;
