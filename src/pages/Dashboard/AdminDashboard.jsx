@@ -124,19 +124,29 @@ export const AdminDashboard = () => {
     }
   };
 
+  // Reorder checks: isAdmin check should happen BEFORE or alongside loading
+  // to ensure proper redirection if the user is not an admin.
   if (!isAdmin) {
-    return <Navigate to="/dashboard" />;
+    console.log("AdminDashboard: Access denied, redirecting to customer dashboard");
+    return <Navigate to="/dashboard" replace />;
   }
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
         <div className="relative">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-brand-600"></div>
           <div className="absolute inset-0 flex items-center justify-center">
             <Activity size={24} className="text-brand-600 animate-pulse" />
           </div>
         </div>
+        <p className="text-slate-500 animate-pulse text-sm font-medium">Initialising Command Center...</p>
+        <button 
+          onClick={() => setLoading(false)}
+          className="mt-4 text-xs text-slate-400 hover:text-brand-600 underline"
+        >
+          Taking too long? Click here.
+        </button>
       </div>
     );
   }

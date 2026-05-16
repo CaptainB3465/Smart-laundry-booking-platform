@@ -6,9 +6,29 @@ export const useSettings = () => useContext(SettingsContext);
 
 export const SettingsProvider = ({ children }) => {
   // Initialize state from localStorage or use defaults
-  const [theme, setTheme] = useState(() => localStorage.getItem('laundry_theme') || 'light');
-  const [companyName, setCompanyName] = useState(() => localStorage.getItem('laundry_company') || 'SmartWash');
-  const [currency, setCurrency] = useState(() => localStorage.getItem('laundry_currency') || '$');
+  // Initialize state from localStorage or use defaults with safety wrapper
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem('laundry_theme') || 'light';
+    } catch (e) {
+      console.warn("Settings: localStorage access failed", e);
+      return 'light';
+    }
+  });
+  const [companyName, setCompanyName] = useState(() => {
+    try {
+      return localStorage.getItem('laundry_company') || 'SmartWash';
+    } catch (e) {
+      return 'SmartWash';
+    }
+  });
+  const [currency, setCurrency] = useState(() => {
+    try {
+      return localStorage.getItem('laundry_currency') || '$';
+    } catch (e) {
+      return '$';
+    }
+  });
 
   // Apply theme to document element and save to localStorage
   useEffect(() => {
