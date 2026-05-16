@@ -4,7 +4,7 @@ import { useSettings } from '../../context/SettingsContext';
 import { subscribeToUserOrders, deleteOrder } from '../../services/api';
 import { Card, CardBody } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
-import { Package, MapPin, Calendar, Trash2, XCircle } from 'lucide-react';
+import { Package, MapPin, Calendar, Trash2, XCircle, CheckCircle, Droplet, Truck, Home, ThumbsUp, XOctagon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 
@@ -162,12 +162,82 @@ export const UserDashboard = () => {
                 {order.status === 'Shipped' && (
                   <div className="mt-4 p-4 bg-fuchsia-50 dark:bg-fuchsia-900/20 rounded-xl border border-fuchsia-100 dark:border-fuchsia-800/50 flex items-start gap-3 animate-fade-in">
                     <div className="p-1.5 bg-fuchsia-100 dark:bg-fuchsia-900/50 text-fuchsia-600 dark:text-fuchsia-400 rounded-lg shrink-0 mt-0.5">
-                      <Package size={16} />
+                      <Truck size={16} />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-fuchsia-800 dark:text-fuchsia-300">Your laundry is on the way!</p>
                       <p className="text-xs text-fuchsia-600/80 dark:text-fuchsia-400/80 mt-1">
                         Our delivery partner has picked up your clothes and is heading to your location.
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {order.status === 'Approved' && (
+                  <div className="mt-4 p-4 bg-teal-50 dark:bg-teal-900/20 rounded-xl border border-teal-100 dark:border-teal-800/50 flex items-start gap-3 animate-fade-in">
+                    <div className="p-1.5 bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 rounded-lg shrink-0 mt-0.5">
+                      <ThumbsUp size={16} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-teal-800 dark:text-teal-300">Order Approved!</p>
+                      <p className="text-xs text-teal-600/80 dark:text-teal-400/80 mt-1">
+                        We've received and approved your booking. We will be picking up your laundry soon.
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {order.status === 'Declined' && (
+                  <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800/50 flex items-start gap-3 animate-fade-in">
+                    <div className="p-1.5 bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg shrink-0 mt-0.5">
+                      <XOctagon size={16} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-red-800 dark:text-red-300">Order Declined</p>
+                      <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-1">
+                        Unfortunately, we could not fulfill this request at the moment. Please contact support.
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {order.status === 'Picked Up' && (
+                  <div className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/50 flex items-start gap-3 animate-fade-in">
+                    <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg shrink-0 mt-0.5">
+                      <Package size={16} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-indigo-800 dark:text-indigo-300">Laundry Picked Up</p>
+                      <p className="text-xs text-indigo-600/80 dark:text-indigo-400/80 mt-1">
+                        Your clothes have been securely picked up and are on the way to our cleaning facility.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {order.status === 'Washing' && (
+                  <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50 flex items-start gap-3 animate-fade-in">
+                    <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg shrink-0 mt-0.5">
+                      <Droplet size={16} className="animate-bounce" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">Currently Washing</p>
+                      <p className="text-xs text-blue-600/80 dark:text-blue-400/80 mt-1">
+                        Our experts are currently washing, drying, and treating your garments with the utmost care.
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {order.status === 'Delivered' && (
+                  <div className="mt-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800/50 flex items-start gap-3 animate-fade-in">
+                    <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg shrink-0 mt-0.5">
+                      <Home size={16} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Delivered Successfully!</p>
+                      <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-1">
+                        Your laundry has been safely delivered back to you. We hope you enjoy the freshness!
                       </p>
                     </div>
                   </div>

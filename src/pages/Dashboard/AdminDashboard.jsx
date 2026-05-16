@@ -64,6 +64,9 @@ export const AdminDashboard = () => {
   // Walk-in Order State
   const [showWalkInModal, setShowWalkInModal] = useState(false);
   
+  // Status Update State
+  const [updatingId, setUpdatingId] = useState(null);
+  
   // Logs State
   const [showLogs, setShowLogs] = useState(false);
   const [liveLogs, setLiveLogs] = useState([
