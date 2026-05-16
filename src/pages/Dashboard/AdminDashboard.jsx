@@ -61,6 +61,15 @@ export const AdminDashboard = () => {
     iconName: 'Droplet'
   });
 
+  // Walk-in Order State
+  const [showWalkInModal, setShowWalkInModal] = useState(false);
+  const [walkInFormData, setWalkInFormData] = useState({
+    fullName: '',
+    phone: '',
+    serviceId: '',
+    location: 'Walk-in / Shop'
+  });
+
   const formatPrice = (price) => {
     return `${currency === 'KES' ? 'KES ' : currency}${Number(price).toFixed(2)}`;
   };
@@ -163,6 +172,35 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleCreateWalkInOrder = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const selectedService = services.find(s => s.id === walkInFormData.serviceId);
+      if (!selectedService) throw new Error("Please select a service");
+
+      await createOrder({
+        userId: 'admin-manual',
+        fullName: walkInFormData.fullName,
+        phone: walkInFormData.phone.startsWith('+254') ? walkInFormData.phone : `+254${walkInFormData.phone}`,
+        location: walkInFormData.location,
+        serviceType: selectedService.name,
+        price: selectedService.price,
+        pickupDate: new Date().toISOString(),
+        status: 'Picked Up', // Walk-ins are usually dropped off
+        isWalkIn: true
+      });
+      
+      setShowWalkInModal(false);
+      setWalkInFormData({ fullName: '', phone: '', serviceId: '', location: 'Walk-in / Shop' });
+      alert("Walk-in order created successfully!");
+    } catch (error) {
+      alert("Error: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       setUpdatingId(orderId);
@@ -250,8 +288,8 @@ export const AdminDashboard = () => {
           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2">Quick Actions</p>
           <button 
             onClick={() => {
-              setActiveView('overview');
-              alert('Manual Order Entry coming soon!');
+              if (services.length === 0) return alert("Please add services first!");
+              setShowWalkInModal(true);
             }}
             className="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-brand-500 transition-all group text-left"
           >
@@ -629,24 +667,24 @@ export const AdminDashboard = () => {
           </div>
 
           <div className="space-y-8">
-            <Card className="bg-gradient-to-br from-slate-800 to-slate-950 border-none text-white overflow-hidden relative group">
+            <Card className="bg-gradient-to-br from-brand-600 to-brand-800 dark:from-slate-800 dark:to-slate-950 border-none text-white overflow-hidden relative group">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                 <TrendingUp size={80} />
               </div>
               <CardBody className="p-8 relative z-10">
-                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Revenue Growth</p>
+                <p className="text-brand-100 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Revenue Growth</p>
                 <h4 className="text-4xl font-bold mb-6">+24.8%</h4>
                 <div className="flex items-end gap-1 h-24 mb-4">
                   {[40, 70, 45, 90, 65, 80, 100].map((h, i) => (
                     <div 
                       key={i} 
-                      className="flex-1 bg-brand-500/40 rounded-t-sm hover:bg-brand-500 transition-all cursor-help" 
+                      className="flex-1 bg-white/20 dark:bg-brand-500/40 rounded-t-sm hover:bg-white dark:hover:bg-brand-500 transition-all cursor-help" 
                       style={{ height: `${h}%` }} 
                       title={`Week ${i+1}`}
                     />
                   ))}
                 </div>
-                <p className="text-sm text-slate-400">Projected revenue for next month is {formatPrice((stats?.totalRevenue || 0) * 1.2)}</p>
+                <p className="text-sm text-brand-100 dark:text-slate-400">Projected revenue for next month is {formatPrice((stats?.totalRevenue || 0) * 1.2)}</p>
               </CardBody>
             </Card>
 
@@ -681,6 +719,78 @@ export const AdminDashboard = () => {
           </div>
         </div>
       </div>
+      {/* Walk-in Order Modal */}
+      {showWalkInModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-scale-in">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+              <h3 className="text-xl font-bold text-primary flex items-center gap-2">
+                <ShoppingBag className="text-brand-600" size={20} />
+                New Walk-in Order
+              </h3>
+              <button onClick={() => setShowWalkInModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateWalkInOrder} className="p-6 space-y-4">
+              <Input 
+                label="Customer Name"
+                placeholder="e.g. John Doe"
+                value={walkInFormData.fullName}
+                onChange={(e) => setWalkInFormData({...walkInFormData, fullName: e.target.value})}
+                required
+              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-secondary">Phone Number</label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 text-sm font-semibold">+254</span>
+                  <input 
+                    type="tel"
+                    className="flex-1 min-w-0 block w-full px-4 py-2.5 bg-primary border border-slate-200 dark:border-slate-700 rounded-r-lg text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    placeholder="7XXXXXXXX"
+                    value={walkInFormData.phone}
+                    onChange={(e) => setWalkInFormData({...walkInFormData, phone: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-secondary">Select Service</label>
+                <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1">
+                  {services.map(service => (
+                    <button
+                      key={service.id}
+                      type="button"
+                      onClick={() => setWalkInFormData({...walkInFormData, serviceId: service.id})}
+                      className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all ${
+                        walkInFormData.serviceId === service.id 
+                          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 text-brand-600' 
+                          : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 text-secondary'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {ICON_MAP[service.iconName] || <Package size={18} />}
+                        <span className="text-sm font-bold">{service.name}</span>
+                      </div>
+                      <span className="text-xs font-mono">{formatPrice(service.price)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <Button type="button" variant="secondary" fullWidth onClick={() => setShowWalkInModal(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" fullWidth loading={loading}>
+                  Create Order
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

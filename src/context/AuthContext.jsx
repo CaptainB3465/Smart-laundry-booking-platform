@@ -4,7 +4,9 @@ import {
   createUserWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  updateProfile as firebaseUpdateProfile
+  updateProfile as firebaseUpdateProfile,
+  sendPasswordResetEmail,
+  deleteUser
 } from 'firebase/auth';
 import auth from '../auth';
 
@@ -64,12 +66,23 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser({ ...auth.currentUser });
   };
 
+  const resetPassword = (email) => {
+    return sendPasswordResetEmail(auth, email);
+  };
+
+  const deleteAccount = async () => {
+    if (!auth.currentUser) return;
+    return deleteUser(auth.currentUser);
+  };
+
   const value = {
     currentUser,
     login,
     register,
     logout,
     updateProfile,
+    resetPassword,
+    deleteAccount,
     // Identify Admin by environment variable email
     isAdmin: currentUser?.email === import.meta.env.VITE_ADMIN_EMAIL
   };

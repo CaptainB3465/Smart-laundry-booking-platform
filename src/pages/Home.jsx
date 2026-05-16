@@ -21,7 +21,7 @@ export const Home = () => {
           <div className="absolute inset-0 animate-ken-burns">
             <img 
               src="/premium_laundry_bg_1778956713611.png" 
-              alt="Premium Laundry Service" 
+              alt="" 
               className="w-full h-full object-cover opacity-60 dark:opacity-40"
             />
           </div>
@@ -57,8 +57,18 @@ export const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-slate-50 dark:bg-slate-800 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-24 overflow-hidden">
+        {/* Background Image with Parallax-like feel */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/premium_laundry_bg_1778956713611.png" 
+            alt="" 
+            className="w-full h-full object-cover opacity-10 dark:opacity-5 grayscale"
+          />
+          <div className="absolute inset-0 bg-slate-50/90 dark:bg-slate-900/95 transition-colors duration-300" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-heading font-bold text-slate-900 dark:text-white sm:text-4xl transition-colors duration-300">Why Choose {companyName}?</h2>
             <p className="mt-4 text-lg text-slate-600 dark:text-slate-400 transition-colors duration-300">We handle your laundry with the utmost care, ensuring quality and convenience.</p>

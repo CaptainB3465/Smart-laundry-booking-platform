@@ -7,7 +7,7 @@ import { Moon, Sun, Mail, Phone, Building, User as UserIcon } from 'lucide-react
 import { useAuth } from '../../context/AuthContext';
 
 export const Settings = () => {
-  const { currentUser, updateProfile } = useAuth();
+  const { currentUser, updateProfile, resetPassword, deleteAccount } = useAuth();
   const { theme, setTheme, companyName, setCompanyName, currency, setCurrency } = useSettings();
   
   const [localName, setLocalName] = useState(currentUser?.displayName || '');
@@ -39,6 +39,43 @@ export const Settings = () => {
     setCurrency(localCurrency);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      setProfileLoading(true);
+      await resetPassword(currentUser.email);
+      alert(`A password reset email has been sent to ${currentUser.email}. Please check your inbox.`);
+    } catch (error) {
+      console.error("Failed to send reset email", error);
+      alert("Error: " + error.message);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmation = window.confirm(
+      "WARNING: This will permanently delete your account and all your laundry order history. This action cannot be undone.\n\nAre you absolutely sure?"
+    );
+    
+    if (confirmation) {
+      try {
+        setProfileLoading(true);
+        await deleteAccount();
+        alert("Account deleted successfully.");
+        // Firebase automatically triggers logout and redirects
+      } catch (error) {
+        console.error("Failed to delete account", error);
+        if (error.code === 'auth/requires-recent-login') {
+          alert("For security reasons, you must have recently logged in to delete your account. Please log out and log back in, then try again.");
+        } else {
+          alert("Error: " + error.message);
+        }
+      } finally {
+        setProfileLoading(false);
+      }
+    }
   };
 
   return (
@@ -78,8 +115,24 @@ export const Settings = () => {
               </div>
               <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex gap-4">
-                  <Button variant="outline" className="text-sm dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Change Password</Button>
-                  <Button variant="outline" className="text-sm text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900/50 dark:hover:bg-red-900/10">Delete Account</Button>
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    className="text-sm dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                    onClick={handleChangePassword}
+                    loading={profileLoading}
+                  >
+                    Change Password
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    className="text-sm text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900/50 dark:hover:bg-red-900/10"
+                    onClick={handleDeleteAccount}
+                    loading={profileLoading}
+                  >
+                    Delete Account
+                  </Button>
                 </div>
                 <Button type="submit" loading={profileLoading}>Save Profile</Button>
               </div>

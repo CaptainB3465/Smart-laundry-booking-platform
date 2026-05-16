@@ -12,7 +12,7 @@ export const AuthLayout = () => {
         <div className="absolute inset-0 animate-ken-burns">
           <img 
             src="/premium_laundry_bg_1778956713611.png" 
-            alt="Premium Laundry Service" 
+            alt="" 
             className="w-full h-full object-cover opacity-50"
           />
         </div>
