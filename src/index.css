@@ -65,6 +65,16 @@
   100% { transform: translate(0px, 0px) scale(1); }
 }
 
+@keyframes ken-burns {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.animate-ken-burns {
+  animation: ken-burns 20s ease-in-out infinite;
+}
+
 .animate-blob {
   animation: blob 7s infinite;
 }

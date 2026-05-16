@@ -16,6 +16,7 @@ import db from "../db";
 // --- ORDER OPERATIONS ---
 
 export const createOrder = async (orderData) => {
+  console.log("API: Creating order...", orderData);
   try {
     const ordersRef = collection(db, "orders");
     const docRef = await addDoc(ordersRef, {
@@ -23,14 +24,18 @@ export const createOrder = async (orderData) => {
       createdAt: serverTimestamp(),
       status: 'Pending'
     });
+    console.log("API: Order created successfully, ID:", docRef.id);
     return { id: docRef.id, ...orderData };
   } catch (error) {
-    console.error("Error creating order:", error);
+    console.error("API: Error creating order:", error);
     throw error;
+  } finally {
+    console.log("API: createOrder execution finished");
   }
 };
 
 export const getUserOrders = async (userId) => {
+  console.log("API: Fetching orders for user:", userId);
   try {
     const ordersRef = collection(db, "orders");
     const q = query(
@@ -39,14 +44,17 @@ export const getUserOrders = async (userId) => {
       orderBy("createdAt", "desc")
     );
     const querySnapshot = await getDocs(q);
+    console.log(`API: Found ${querySnapshot.docs.length} orders for user`);
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
     }));
   } catch (error) {
-    console.error("Error fetching user orders:", error);
+    console.error("API: Error fetching user orders:", error);
     return [];
+  } finally {
+    console.log("API: getUserOrders execution finished");
   }
 };
 
@@ -114,38 +122,54 @@ export const getAdminStats = async () => {
 // --- REAL-TIME SUBSCRIPTIONS ---
 
 export const subscribeToUserOrders = (userId, callback) => {
+  console.log("API: Subscribing to user orders:", userId);
   const ordersRef = collection(db, "orders");
   const q = query(
     ordersRef, 
     where("userId", "==", userId)
   );
 
-  return onSnapshot(q, (snapshot) => {
-    const orders = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
-    })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort in memory
-    callback(orders);
-  }, (error) => {
-    console.error("Error subscribing to user orders:", error);
-    callback([]); // Return empty list on error to stop loading state
-  });
+  try {
+    return onSnapshot(q, (snapshot) => {
+      console.log("API: User orders snapshot received, docs count:", snapshot.docs.length);
+      const orders = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
+      })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      callback(orders);
+    }, (error) => {
+      console.error("API: Error in subscribeToUserOrders snapshot:", error);
+      callback([]); // Ensure loading stops on dashboard
+    });
+  } catch (err) {
+    console.error("API: Sync error in subscribeToUserOrders setup:", err);
+    callback([]);
+    return () => {}; // Return dummy unsubscribe
+  }
 };
 
 export const subscribeToAllOrders = (callback) => {
+  console.log("API: Subscribing to all orders (Admin)...");
   const ordersRef = collection(db, "orders");
   const q = query(ordersRef, orderBy("createdAt", "desc"));
 
-  return onSnapshot(q, (snapshot) => {
-    const orders = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
-    }));
-    callback(orders);
-  }, (error) => {
-    console.error("Error subscribing to all orders:", error);
+  try {
+    return onSnapshot(q, (snapshot) => {
+      console.log("API: All orders snapshot received, docs count:", snapshot.docs.length);
+      const orders = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate()?.toISOString() || new Date().toISOString()
+      }));
+      callback(orders);
+    }, (error) => {
+      console.error("API: Error in subscribeToAllOrders snapshot:", error);
+      callback([]);
+    });
+  } catch (err) {
+    console.error("API: Sync error in subscribeToAllOrders setup:", err);
     callback([]);
-  });
+    return () => {};
+  }
 };

@@ -53,30 +53,49 @@ export const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isAdmin) {
+      console.log("AdminDashboard: User is not admin, skipping global subscription");
+      return;
+    }
+
+    console.log("AdminDashboard: Initializing global orders subscription...");
+    setLoading(true);
 
     // Start real-time global subscription
-    const unsubscribe = subscribeToAllOrders((data) => {
-      setOrders(data);
-      
-      // Calculate real-time stats from the live data
-      const totalRevenue = data.reduce((sum, order) => sum + (order.price || 0), 0);
-      const activeOrders = data.filter(o => o.status !== 'Delivered').length;
-      const completedOrders = data.filter(o => o.status === 'Delivered').length;
-      const totalCustomers = new Set(data.map(o => o.userId)).size;
+    let unsubscribe;
+    try {
+      unsubscribe = subscribeToAllOrders((data) => {
+        console.log("AdminDashboard: Received global data, count:", data.length);
+        setOrders(data);
+        
+        // Calculate real-time stats from the live data
+        const totalRevenue = data.reduce((sum, order) => sum + (order.price || 0), 0);
+        const activeOrders = data.filter(o => o.status !== 'Delivered').length;
+        const completedOrders = data.filter(o => o.status === 'Delivered').length;
+        const totalCustomers = new Set(data.map(o => o.userId)).size;
 
-      setStats({
-        totalRevenue,
-        activeOrders,
-        completedOrders,
-        totalCustomers,
-        recentGrowth: '+12.5%'
+        setStats({
+          totalRevenue,
+          activeOrders,
+          completedOrders,
+          totalCustomers,
+          recentGrowth: '+12.5%'
+        });
+        
+        setLoading(false);
+        console.log("AdminDashboard: Loading stopped");
       });
-      
+    } catch (err) {
+      console.error("AdminDashboard: Error in subscription setup:", err);
       setLoading(false);
-    });
+    }
 
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribe) {
+        console.log("AdminDashboard: Unsubscribing from all orders");
+        unsubscribe();
+      }
+    };
   }, [isAdmin]);
 
   const handleStatusChange = async (orderId, newStatus) => {

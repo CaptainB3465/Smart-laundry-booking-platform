@@ -75,24 +75,33 @@ export const BookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("BookingForm: Submit initiated");
+    
     if (!formData.fullName || !formData.phone || !formData.location || !formData.pickupDate) {
+      console.warn("BookingForm: Validation failed - missing fields");
       return setError('Please fill in all fields');
     }
 
     try {
       setLoading(true);
       setError('');
+      console.log("BookingForm: Calling createOrder API...");
+      
       const newOrder = await createOrder({
         userId: currentUser.uid,
         ...formData,
         serviceType: SERVICES.filter(s => selectedServices.includes(s.id)).map(s => s.name).join(', '),
         price: calculatedPrice,
       });
+      
+      console.log("BookingForm: Order successful, navigating...");
       navigate('/booking/success', { state: { order: newOrder } });
     } catch (err) {
+      console.error("BookingForm: Error creating order:", err);
       setError('Failed to create booking. Please try again.');
     } finally {
       setLoading(false);
+      console.log("BookingForm: Loading state set to false");
     }
   };
 

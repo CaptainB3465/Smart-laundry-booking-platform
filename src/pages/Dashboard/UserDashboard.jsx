@@ -20,16 +20,35 @@ export const UserDashboard = () => {
   };
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      console.log("UserDashboard: No current user, skipping subscription");
+      return;
+    }
+
+    console.log("UserDashboard: Initializing orders subscription for:", currentUser.uid);
+    setLoading(true);
 
     // Start real-time subscription
-    const unsubscribe = subscribeToUserOrders(currentUser.uid, (data) => {
-      setOrders(data);
+    let unsubscribe;
+    try {
+      unsubscribe = subscribeToUserOrders(currentUser.uid, (data) => {
+        console.log("UserDashboard: Received orders data, count:", data.length);
+        setOrders(data);
+        setLoading(false);
+        console.log("UserDashboard: Loading stopped");
+      });
+    } catch (err) {
+      console.error("UserDashboard: Error setting up subscription:", err);
       setLoading(false);
-    });
+    }
 
     // Cleanup subscription on unmount
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribe) {
+        console.log("UserDashboard: Unsubscribing from orders");
+        unsubscribe();
+      }
+    };
   }, [currentUser]);
 
   const handleCancelOrder = async (orderId) => {

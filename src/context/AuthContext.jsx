@@ -19,13 +19,24 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("Auth: Initializing auth state listener...");
     // Listen for real-time Firebase Auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      setLoading(false);
-    });
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        console.log("Auth: State changed, user:", user ? user.email : "Logged Out");
+        setCurrentUser(user);
+        setLoading(false);
+        console.log("Auth: Loading state set to false");
+      }, (error) => {
+        console.error("Auth: Error in onAuthStateChanged:", error);
+        setLoading(false); // Stop loading even on error
+      });
 
-    return unsubscribe;
+      return unsubscribe;
+    } catch (err) {
+      console.error("Auth: Unexpected error in useEffect:", err);
+      setLoading(false);
+    }
   }, []);
 
   const login = (email, password) => {
