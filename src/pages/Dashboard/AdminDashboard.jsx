@@ -134,45 +134,45 @@ export const AdminDashboard = () => {
   // Loading effect terminated - rendering content immediately
   
   return (
-    <div className="flex flex-col lg:flex-row gap-8 animate-fade-in">
+    <div className="flex flex-col lg:flex-row gap-8 animate-fade-in text-primary">
       {/* Admin Sidebar Navigation */}
       <aside className="lg:w-64 flex flex-col gap-6 shrink-0">
         <Card className="bg-slate-900 border-none shadow-xl">
           <CardBody className="p-4 flex flex-col gap-1">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] px-4 mb-2">Management</p>
+            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] px-4 mb-2">Management</p>
             <button 
               onClick={() => setActiveView('overview')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeView === 'overview' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeView === 'overview' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-secondary hover:text-white hover:bg-slate-800'}`}
             >
               <Activity size={18} />
               Overview
             </button>
             <button 
               onClick={() => setActiveView('orders')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeView === 'orders' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeView === 'orders' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-secondary hover:text-white hover:bg-slate-800'}`}
             >
               <ShoppingBag size={18} />
               Orders
             </button>
             <button 
               onClick={() => setActiveView('customers')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeView === 'customers' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeView === 'customers' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-secondary hover:text-white hover:bg-slate-800'}`}
             >
               <Users size={18} />
               Customers
             </button>
             <div className="h-px bg-slate-800 my-4 mx-4" />
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] px-4 mb-2">System</p>
+            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] px-4 mb-2">System</p>
             <button 
               onClick={() => setActiveView('services')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeView === 'services' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeView === 'services' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-secondary hover:text-white hover:bg-slate-800'}`}
             >
               <Package size={18} />
               Services
             </button>
             <button 
               onClick={() => setActiveView('config')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeView === 'config' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeView === 'config' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'text-secondary hover:text-white hover:bg-slate-800'}`}
             >
               <SettingsIcon size={18} />
               Config
@@ -219,13 +219,13 @@ export const AdminDashboard = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 space-y-8 min-w-0">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-100 dark:border-slate-900 shadow-sm transition-all duration-500">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-card p-6 rounded-3xl shadow-sm transition-all duration-500">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h2 className="text-3xl font-heading font-extrabold text-slate-900 dark:text-white tracking-tight">Command Center</h2>
+              <h2 className="text-3xl font-heading font-extrabold text-primary tracking-tight">Command Center</h2>
               <div className="px-2 py-0.5 bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 rounded text-[10px] font-bold uppercase tracking-wider">Admin v2.0</div>
             </div>
-            <p className="text-slate-500 dark:text-slate-400">System orchestration & order management terminal.</p>
+            <p className="text-secondary">System orchestration & order management terminal.</p>
           </div>
           
           <div className="flex items-center gap-4 w-full md:w-auto">
@@ -284,7 +284,7 @@ export const AdminDashboard = () => {
             {activeView === 'overview' && (
               <>
                 <div className="flex items-center justify-between px-2">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
+                  <h3 className="text-xl font-bold text-primary">Recent Transactions</h3>
                   <button onClick={() => setActiveView('orders')} className="text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline">View All</button>
                 </div>
                 

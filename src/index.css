@@ -14,8 +14,41 @@
 }
 
 @layer components {
+  /* Theme Tokens */
+  .bg-primary {
+    @apply bg-white dark:bg-slate-950 transition-colors duration-300;
+  }
+  
+  .bg-secondary {
+    @apply bg-slate-50 dark:bg-slate-900 transition-colors duration-300;
+  }
+
+  .bg-card {
+    @apply bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 transition-all duration-300;
+  }
+
+  .text-primary {
+    @apply text-slate-900 dark:text-white transition-colors duration-300;
+  }
+
+  .text-secondary {
+    @apply text-slate-600 dark:text-slate-400 transition-colors duration-300;
+  }
+
+  .text-muted {
+    @apply text-slate-400 dark:text-slate-500;
+  }
+
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700 active:scale-95 transition-all;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 transition-all;
+  }
+
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-soft;
+    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/20 dark:border-slate-700/50 shadow-soft;
   }
   
   .animate-fade-in {
