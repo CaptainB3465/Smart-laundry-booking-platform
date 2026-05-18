@@ -30,12 +30,14 @@ export const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          <Link 
-            to="/" 
-            className={`text-sm font-semibold transition-colors hover:text-brand-600 dark:hover:text-brand-400 ${isCurrent('/') ? 'text-brand-600 dark:text-brand-400' : 'text-slate-600 dark:text-slate-400'}`}
-          >
-            Home
-          </Link>
+          {!currentUser && (
+            <Link 
+              to="/" 
+              className={`text-sm font-semibold transition-colors hover:text-brand-600 dark:hover:text-brand-400 ${isCurrent('/') ? 'text-brand-600 dark:text-brand-400' : 'text-slate-600 dark:text-slate-400'}`}
+            >
+              Home
+            </Link>
+          )}
           {currentUser && !isAdmin && (
             <Link 
               to="/booking" 
@@ -99,7 +101,9 @@ export const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 right-0 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 animate-fade-in-down shadow-xl z-50">
           <div className="flex flex-col p-4 gap-2">
-            <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl">Home</Link>
+            {!currentUser && (
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl">Home</Link>
+            )}
             {currentUser && (
               <>
                 {!isAdmin && (
