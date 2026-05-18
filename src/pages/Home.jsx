@@ -17,13 +17,8 @@ export const Home = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden flex-1 flex flex-col justify-center items-center py-20 px-4 sm:px-6 lg:px-8 text-center bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-all duration-700">
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Static Background Image */}
+          {/* Static Background Image Removed */}
           <div className="absolute inset-0">
-            <img 
-              src="/premium_laundry_bg_1778956713611.png" 
-              alt="" 
-              className="w-full h-full object-cover opacity-60 dark:opacity-40"
-            />
           </div>
           
           {/* Static Floating Blobs */}
@@ -58,13 +53,8 @@ export const Home = () => {
 
       {/* Features Section */}
       <section className="relative py-24 overflow-hidden">
-        {/* Background Image with Parallax-like feel */}
+        {/* Background Image with Parallax-like feel (Removed Broken Image) */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/premium_laundry_bg_1778956713611.png" 
-            alt="" 
-            className="w-full h-full object-cover opacity-10 dark:opacity-5 grayscale"
-          />
           <div className="absolute inset-0 bg-slate-50/90 dark:bg-slate-900/95 transition-colors duration-300" />
         </div>
 
