@@ -88,6 +88,37 @@ export const AdminDashboard = () => {
     return `${currency === 'KES' ? 'KES ' : currency}${Number(price).toFixed(2)}`;
   };
 
+  // Compute weekly revenue for bar chart (last 7 weeks)
+  const getWeeklyRevenueData = (orderList) => {
+    const now = Date.now();
+    const weeks = Array(7).fill(0);
+    orderList.forEach(order => {
+      const ts = order.createdAt?.toDate?.()?.getTime?.() || new Date(order.pickupDate).getTime();
+      const weeksAgo = Math.floor((now - ts) / (7 * 24 * 60 * 60 * 1000));
+      if (weeksAgo >= 0 && weeksAgo < 7) {
+        weeks[6 - weeksAgo] += (order.price || 0);
+      }
+    });
+    const maxVal = Math.max(...weeks, 1);
+    return weeks.map(v => Math.round((v / maxVal) * 100));
+  };
+
+  // Compute revenue growth % (this week vs last week)
+  const getRevenueGrowth = (orderList) => {
+    const now = Date.now();
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    let thisWeek = 0, lastWeek = 0;
+    orderList.forEach(order => {
+      const ts = order.createdAt?.toDate?.()?.getTime?.() || new Date(order.pickupDate).getTime();
+      const age = now - ts;
+      if (age < oneWeek) thisWeek += (order.price || 0);
+      else if (age < 2 * oneWeek) lastWeek += (order.price || 0);
+    });
+    if (lastWeek === 0) return thisWeek > 0 ? '+100%' : '0%';
+    const pct = ((thisWeek - lastWeek) / lastWeek * 100).toFixed(1);
+    return (parseFloat(pct) >= 0 ? '+' : '') + pct + '%';
+  };
+
   useEffect(() => {
     if (!isAdmin) {
       console.log("AdminDashboard: User is not admin, skipping global subscription");
@@ -431,15 +462,19 @@ export const AdminDashboard = () => {
                                 <Badge status={order.status} />
                               </td>
                               <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
-                                <select 
-                                  value={order.status}
-                                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                                  className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 text-slate-700 dark:text-white"
-                                >
-                                  {STATUS_OPTIONS.map(status => (
-                                    <option key={status} value={status}>{status}</option>
-                                  ))}
-                                </select>
+                                {order.status === 'Delivered' ? (
+                                  <span className="text-xs px-2 py-1 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 font-semibold">✓ User Confirmed</span>
+                                ) : (
+                                  <select 
+                                    value={order.status}
+                                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                    className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 text-slate-700 dark:text-white"
+                                  >
+                                    {STATUS_OPTIONS.map(status => (
+                                      <option key={status} value={status}>{status}</option>
+                                    ))}
+                                  </select>
+                                )}
                                 <button 
                                   onClick={() => handleDeleteOrder(order.id)}
                                   className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
@@ -486,15 +521,19 @@ export const AdminDashboard = () => {
                             <td className="px-6 py-4 flex items-center justify-between gap-2">
                               <Badge status={order.status} />
                               <div className="flex items-center gap-2">
-                                <select 
-                                  value={order.status}
-                                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                                  className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 text-slate-700 dark:text-white"
-                                >
-                                  {STATUS_OPTIONS.map(status => (
-                                    <option key={status} value={status}>{status}</option>
-                                  ))}
-                                </select>
+                                {order.status === 'Delivered' ? (
+                                  <span className="text-xs px-2 py-1 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 font-semibold">✓ User Confirmed</span>
+                                ) : (
+                                  <select 
+                                    value={order.status}
+                                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                    className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 text-slate-700 dark:text-white"
+                                  >
+                                    {STATUS_OPTIONS.map(status => (
+                                      <option key={status} value={status}>{status}</option>
+                                    ))}
+                                  </select>
+                                )}
                                 <button 
                                   onClick={() => handleDeleteOrder(order.id)}
                                   className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
@@ -548,7 +587,15 @@ export const AdminDashboard = () => {
                                 {order.phone}
                               </td>
                               <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
-                                May 12, 2026
+                                {/* Use the earliest order's createdAt as the join date */}
+                                {(() => {
+                                  const userOrders = orders.filter(o => o.userId === uid);
+                                  const earliest = userOrders.reduce((min, o) => {
+                                    const ts = o.createdAt?.toDate?.() || new Date(o.pickupDate);
+                                    return ts < min ? ts : min;
+                                  }, new Date());
+                                  return earliest.toLocaleDateString('en-KE', { year: 'numeric', month: 'short', day: 'numeric' });
+                                })()}
                               </td>
                               <td className="px-6 py-4 text-right">
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Active</span>
@@ -738,14 +785,14 @@ export const AdminDashboard = () => {
               </div>
               <CardBody className="p-8 relative z-10">
                 <p className="text-brand-100 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Revenue Growth</p>
-                <h4 className="text-4xl font-bold mb-6">+24.8%</h4>
+                <h4 className="text-4xl font-bold mb-6">{getRevenueGrowth(orders)}</h4>
                 <div className="flex items-end gap-1 h-24 mb-4">
-                  {[40, 70, 45, 90, 65, 80, 100].map((h, i) => (
+                  {getWeeklyRevenueData(orders).map((h, i) => (
                     <div 
                       key={i} 
-                      className="flex-1 bg-white/20 dark:bg-brand-500/40 rounded-t-sm hover:bg-white dark:hover:bg-brand-500 transition-all cursor-help" 
-                      style={{ height: `${h}%` }} 
-                      title={`Week ${i+1}`}
+                      className="flex-1 bg-white/20 dark:bg-brand-500/40 rounded-t-sm hover:bg-white/80 dark:hover:bg-brand-500 transition-all cursor-help" 
+                      style={{ height: `${Math.max(h, 4)}%` }} 
+                      title={`Week ${i + 1}`}
                     />
                   ))}
                 </div>
@@ -763,19 +810,38 @@ export const AdminDashboard = () => {
                   <div>
                     <div className="flex justify-between text-xs mb-1.5 font-medium">
                       <span className="text-slate-500">Order Processing</span>
-                      <span className="text-slate-900 dark:text-white">82%</span>
+                      <span className="text-slate-900 dark:text-white">
+                        {orders.length === 0 ? '0' : Math.round((orders.filter(o => !['Pending','Declined'].includes(o.status)).length / orders.length) * 100)}%
+                      </span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-brand-500 rounded-full" style={{ width: '82%' }} />
+                      <div className="h-full bg-brand-500 rounded-full transition-all duration-700" style={{ width: `${orders.length === 0 ? 0 : Math.round((orders.filter(o => !['Pending','Declined'].includes(o.status)).length / orders.length) * 100)}%` }} />
                     </div>
                   </div>
                   <div>
                     <div className="flex justify-between text-xs mb-1.5 font-medium">
                       <span className="text-slate-500">Delivery Efficiency</span>
-                      <span className="text-slate-900 dark:text-white">94%</span>
+                      <span className="text-slate-900 dark:text-white">
+                        {(() => {
+                          const dispatched = orders.filter(o => ['Out for Delivery','Delivered'].includes(o.status)).length;
+                          const delivered = orders.filter(o => o.status === 'Delivered').length;
+                          return dispatched === 0 ? '—' : Math.round((delivered / dispatched) * 100) + '%';
+                        })()}
+                      </span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: '94%' }} />
+                      <div className="h-full bg-emerald-500 rounded-full transition-all duration-700" style={{ width: `${(() => { const d = orders.filter(o => ['Out for Delivery','Delivered'].includes(o.status)).length; const v = orders.filter(o => o.status === 'Delivered').length; return d === 0 ? 0 : Math.round((v/d)*100); })()}%` }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1.5 font-medium">
+                      <span className="text-slate-500">Completion Rate</span>
+                      <span className="text-slate-900 dark:text-white">
+                        {orders.length === 0 ? '0' : Math.round((orders.filter(o => ['Completed','Delivered'].includes(o.status)).length / orders.length) * 100)}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-500 rounded-full transition-all duration-700" style={{ width: `${orders.length === 0 ? 0 : Math.round((orders.filter(o => ['Completed','Delivered'].includes(o.status)).length / orders.length) * 100)}%` }} />
                     </div>
                   </div>
                 </div>

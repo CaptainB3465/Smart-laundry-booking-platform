@@ -6,6 +6,23 @@ import { Button } from '../../components/ui/Button';
 import { Moon, Sun, Mail, Phone, Building, Save, Edit3 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+const COUNTRY_CODES = [
+  { code: '+254', name: 'Kenya 🇰🇪' },
+  { code: '+255', name: 'Tanzania 🇹🇿' },
+  { code: '+256', name: 'Uganda 🇺🇬' },
+  { code: '+250', name: 'Rwanda 🇷🇼' },
+  { code: '+251', name: 'Ethiopia 🇪🇹' },
+  { code: '+233', name: 'Ghana 🇬🇭' },
+  { code: '+234', name: 'Nigeria 🇳🇬' },
+  { code: '+27',  name: 'South Africa 🇿🇦' },
+  { code: '+20',  name: 'Egypt 🇪🇬' },
+  { code: '+1',   name: 'USA/Canada 🇺🇸' },
+  { code: '+44',  name: 'UK 🇬🇧' },
+  { code: '+91',  name: 'India 🇮🇳' },
+  { code: '+971', name: 'UAE 🇦🇪' },
+  { code: '+966', name: 'Saudi Arabia 🇸🇦' },
+];
+
 export const Settings = () => {
   const { currentUser, updateProfile, resetPassword, deleteAccount } = useAuth();
   const {
@@ -21,6 +38,7 @@ export const Settings = () => {
   // Profile state
   const [localName, setLocalName] = useState(currentUser?.displayName || '');
   const [localEmail, setLocalEmail] = useState(currentUser?.email || '');
+  const [phoneCC, setPhoneCC] = useState('+254');
   const [localPhone, setLocalPhone] = useState('');
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
@@ -41,7 +59,14 @@ export const Settings = () => {
   useEffect(() => {
     if (currentUser?.uid) {
       const saved = localStorage.getItem(`phone_${currentUser.uid}`) || '';
-      setLocalPhone(saved);
+      // Detect country code prefix
+      const match = COUNTRY_CODES.find(c => saved.startsWith(c.code));
+      if (match) {
+        setPhoneCC(match.code);
+        setLocalPhone(saved.slice(match.code.length));
+      } else {
+        setLocalPhone(saved);
+      }
     }
   }, [currentUser]);
 
@@ -63,7 +88,7 @@ export const Settings = () => {
       await updateProfile({ displayName: localName });
       // Save phone
       if (currentUser?.uid) {
-        const phoneToSave = localPhone ? `+254${localPhone}` : '';
+        const phoneToSave = localPhone ? `${phoneCC}${localPhone.replace(/[^\d]/g, '')}` : '';
         localStorage.setItem(`phone_${currentUser.uid}`, phoneToSave);
       }
       setProfileSaved(true);
@@ -174,22 +199,29 @@ export const Settings = () => {
                   className="opacity-60 cursor-not-allowed"
                   placeholder="your.email@example.com"
                 />
-                {/* Phone number field */}
+                {/* Phone number with country code */}
                 <div className="flex flex-col gap-1.5">
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number</label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 text-sm font-semibold">
-                      +254
-                    </span>
+                    <select
+                      value={phoneCC}
+                      onChange={(e) => setPhoneCC(e.target.value)}
+                      className="shrink-0 px-2 py-2.5 bg-white dark:bg-slate-800 border border-r-0 border-slate-200 dark:border-slate-700 rounded-l-lg text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:border-brand-500 max-w-[130px]"
+                    >
+                      {COUNTRY_CODES.map(c => (
+                        <option key={c.code} value={c.code}>{c.name} ({c.code})</option>
+                      ))}
+                    </select>
                     <input
                       type="tel"
-                      value={localPhone.replace('+254', '')}
-                      onChange={handlePhoneChange}
-                      placeholder="7XXXXXXXX"
+                      value={localPhone}
+                      onChange={(e) => setLocalPhone(e.target.value.replace(/[^\d]/g, ''))}
+                      onPaste={(e) => { e.preventDefault(); setLocalPhone(e.clipboardData.getData('text').replace(/[^\d]/g, '')); }}
+                      placeholder="712345678"
                       className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-r-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:border-brand-500 focus:ring-brand-100 transition-colors"
                     />
                   </div>
-                  <p className="text-[10px] text-slate-400">This number will auto-fill during booking</p>
+                  <p className="text-[10px] text-slate-400">This number will auto-fill during booking (paste supported)</p>
                 </div>
               </div>
               <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
