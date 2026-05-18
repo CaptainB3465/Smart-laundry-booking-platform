@@ -17,8 +17,8 @@ export const Home = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden flex-1 flex flex-col justify-center items-center py-20 px-4 sm:px-6 lg:px-8 text-center bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-all duration-700">
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Animated Background Image */}
-          <div className="absolute inset-0 animate-ken-burns">
+          {/* Static Background Image */}
+          <div className="absolute inset-0">
             <img 
               src="/premium_laundry_bg_1778956713611.png" 
               alt="" 
@@ -26,10 +26,10 @@ export const Home = () => {
             />
           </div>
           
-          {/* Dynamic Floating Blobs */}
-          <div className="absolute top-1/4 -left-20 w-96 h-96 bg-brand-500/20 rounded-full blur-[100px] animate-blob" />
-          <div className="absolute top-1/2 -right-20 w-96 h-96 bg-accent-500/20 rounded-full blur-[100px] animate-blob animation-delay-2000" />
-          <div className="absolute -bottom-20 left-1/3 w-96 h-96 bg-primary-500/20 rounded-full blur-[100px] animate-blob animation-delay-4000" />
+          {/* Static Floating Blobs */}
+          <div className="absolute top-1/4 -left-20 w-96 h-96 bg-brand-500/20 rounded-full blur-[100px]" />
+          <div className="absolute top-1/2 -right-20 w-96 h-96 bg-accent-500/20 rounded-full blur-[100px]" />
+          <div className="absolute -bottom-20 left-1/3 w-96 h-96 bg-primary-500/20 rounded-full blur-[100px]" />
           
           <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/10 via-transparent to-white/60 dark:from-slate-900/40 dark:via-transparent dark:to-slate-900/60 transition-colors duration-700"></div>
         </div>

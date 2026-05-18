@@ -102,8 +102,7 @@ export const Register = () => {
           rgba(20, 30, 60, 0.65) 0%,
           rgba(60, 80, 160, 0.55) 50%,
           rgba(120, 100, 200, 0.5) 100%
-        ),
-        url('/src/assets/bg.jpg') center/cover no-repeat
+        )
         `,
       }}
     >
