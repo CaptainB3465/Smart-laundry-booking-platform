@@ -93,10 +93,12 @@ export const Register = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 relative overflow-hidden bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/src/assets/bg.jpg')" }}>
-      {/* Overlay layer */}
-      <div className="absolute inset-0 pointer-events-none z-0 transition-all duration-300 bg-gradient-to-r from-[rgba(10,20,40,0.6)] to-[rgba(30,60,120,0.5)] backdrop-blur-[2px] dark:from-[rgba(5,10,25,0.8)] dark:to-[rgba(15,30,60,0.7)] dark:backdrop-blur-[4px]" />
-
+    <div 
+      className="min-h-screen w-full flex justify-center items-center" 
+      style={{ 
+        background: "linear-gradient(rgba(20, 30, 60, 0.75), rgba(80, 100, 180, 0.6)), url('/src/assets/bg.jpg') center/cover no-repeat" 
+      }}
+    >
       {/* Back to Home Button */}
       <Link 
         to="/" 
@@ -109,14 +111,16 @@ export const Register = () => {
       </Link>
 
       {/* Glassmorphism Card */}
-      <div className="relative z-10 w-full max-w-md backdrop-blur-[12px] bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.15)] rounded-[20px] shadow-2xl p-8 sm:p-10 [&_label]:!text-white/90">
+      <div 
+        className="w-[90%] max-w-[400px] p-6 sm:p-8 rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.3)] backdrop-blur-[16px] bg-[rgba(255,255,255,0.12)] border border-[rgba(255,255,255,0.25)] relative z-10 [&_label]:!text-white/90"
+      >
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-white">Create Account</h2>
           <p className="mt-2 text-sm text-white/80">Join SmartWash today</p>
         </div>
 
         {error && (
-          <div className="mb-4 bg-red-500/20 border border-red-500/50 text-red-100 px-4 py-3 rounded-lg text-sm text-center backdrop-blur-sm">
+          <div className="mb-4 bg-red-500/20 border border-red-500/50 text-red-100 px-4 py-3 rounded-xl text-sm text-center backdrop-blur-sm">
             {error}
           </div>
         )}
@@ -127,7 +131,7 @@ export const Register = () => {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="!bg-[rgba(255,255,255,0.05)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.1)] focus:!border-white/40 placeholder:!text-white/40"
+            className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50 placeholder:!text-white/60"
             required
           />
           <Input
@@ -135,7 +139,7 @@ export const Register = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="!bg-[rgba(255,255,255,0.05)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.1)] focus:!border-white/40 placeholder:!text-white/40"
+            className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50 placeholder:!text-white/60"
             required
           />
           <div className="relative">
@@ -145,7 +149,7 @@ export const Register = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               maxLength={16}
-              className="!bg-[rgba(255,255,255,0.05)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.1)] focus:!border-white/40 placeholder:!text-white/40"
+              className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50 placeholder:!text-white/60"
               required
             />
             <button
@@ -190,17 +194,22 @@ export const Register = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             maxLength={16}
-            className="!bg-[rgba(255,255,255,0.05)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.1)] focus:!border-white/40 placeholder:!text-white/40"
+            className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50 placeholder:!text-white/60"
             required
           />
-          <Button type="submit" fullWidth loading={loading} className="mt-6 py-3.5 shadow-xl shadow-blue-900/20 !bg-gradient-to-r !from-blue-500 !to-blue-600 !border-none hover:!from-blue-600 hover:!to-blue-700 !text-white">
+          <Button 
+            type="submit" 
+            fullWidth 
+            loading={loading} 
+            className="!min-h-[48px] text-lg font-bold shadow-lg shadow-blue-900/30 mt-6 !bg-[linear-gradient(to_right,#3b82f6,#2563eb)] !border-none hover:opacity-90 active:scale-[0.98] !text-white transition-all"
+          >
             Sign Up
           </Button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-white/70">
+        <div className="mt-6 text-center text-sm text-white/80">
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-white hover:text-blue-200 transition-all border-b-2 border-transparent hover:border-blue-300 pb-0.5">
+          <Link to="/login" className="font-bold text-white hover:text-blue-200 transition-all border-b-2 border-transparent hover:border-blue-300 pb-0.5">
             Sign in
           </Link>
         </div>
