@@ -28,7 +28,11 @@ export const BookingForm = () => {
   const [selectedServices, setSelectedServices] = useState([]);
   const [formData, setFormData] = useState({
     fullName: currentUser?.displayName || '',
-    phone: '',
+    phone: (() => {
+      // Auto-fill from saved profile phone, stripping the +254 prefix
+      const saved = currentUser?.uid ? localStorage.getItem(`phone_${currentUser.uid}`) || '' : '';
+      return saved.startsWith('+254') ? saved.replace('+254', '') : saved;
+    })(),
     location: '',
     pickupDate: '',
     detergent: 'standard',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Clock, ShieldCheck, Truck, Sparkles } from 'lucide-react';
@@ -10,6 +10,14 @@ import { useSettings } from '../context/SettingsContext';
 export const Home = () => {
   const navigate = useNavigate();
   const { companyName } = useSettings();
+
+  // Force no dark mode on the public home page (#5)
+  useEffect(() => {
+    const root = document.documentElement;
+    const wasDark = root.classList.contains('dark');
+    root.classList.remove('dark');
+    return () => { if (wasDark) root.classList.add('dark'); };
+  }, []);
 
   return (
     <div className="min-h-[100dvh] bg-slate-50 dark:bg-slate-900 transition-colors duration-300 flex flex-col pt-16">

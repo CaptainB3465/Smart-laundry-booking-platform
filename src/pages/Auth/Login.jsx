@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Droplets } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -12,6 +12,14 @@ export const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Force no dark mode on this page (#5)
+  useEffect(() => {
+    const root = document.documentElement;
+    const wasDark = root.classList.contains('dark');
+    root.classList.remove('dark');
+    return () => { if (wasDark) root.classList.add('dark'); };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

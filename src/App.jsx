@@ -59,8 +59,8 @@ function App() {
         <Router>
           <Suspense fallback={null}>
             <Routes>
-            {/* Landing Page without standard App Layout to allow full screen Hero */}
-            <Route path="/" element={<Home />} />
+            {/* Landing Page - only visible to guests; logged-in users go to their dashboard */}
+            <Route path="/" element={<PublicOnlyRoute><Home /></PublicOnlyRoute>} />
 
             {/* Auth Layout - Strict separation for Login/Register */}
             <Route element={<PublicOnlyRoute><AuthLayout /></PublicOnlyRoute>}>

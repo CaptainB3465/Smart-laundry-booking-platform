@@ -38,6 +38,22 @@ export const SettingsProvider = ({ children }) => {
     }
   });
 
+  const [supportEmail, setSupportEmail] = useState(() => {
+    try {
+      return localStorage.getItem('laundry_support_email') || 'munyuabrian712@gmail.com';
+    } catch (e) {
+      return 'munyuabrian712@gmail.com';
+    }
+  });
+
+  const [supportPhone, setSupportPhone] = useState(() => {
+    try {
+      return localStorage.getItem('laundry_support_phone') || '+254719328502';
+    } catch (e) {
+      return '+254719328502';
+    }
+  });
+
   // Apply theme to document element and save to localStorage
   useEffect(() => {
     const root = window.document.documentElement;
@@ -70,6 +86,15 @@ export const SettingsProvider = ({ children }) => {
     localStorage.setItem('laundry_maintenance', maintenanceMode);
   }, [maintenanceMode]);
 
+  // Save support contact info
+  useEffect(() => {
+    localStorage.setItem('laundry_support_email', supportEmail);
+  }, [supportEmail]);
+
+  useEffect(() => {
+    localStorage.setItem('laundry_support_phone', supportPhone);
+  }, [supportPhone]);
+
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
@@ -83,7 +108,11 @@ export const SettingsProvider = ({ children }) => {
     currency,
     setCurrency,
     maintenanceMode,
-    setMaintenanceMode
+    setMaintenanceMode,
+    supportEmail,
+    setSupportEmail,
+    supportPhone,
+    setSupportPhone
   };
 
   return (

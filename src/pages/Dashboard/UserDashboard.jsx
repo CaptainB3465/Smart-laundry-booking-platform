@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
-import { subscribeToUserOrders, deleteOrder } from '../../services/api';
+import { subscribeToUserOrders, deleteOrder, updateOrderStatus } from '../../services/api';
 import { Card, CardBody } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Package, MapPin, Calendar, Trash2, XCircle, CheckCircle, Droplet, Truck, Home, ThumbsUp, XOctagon } from 'lucide-react';
@@ -12,7 +12,8 @@ export const UserDashboard = () => {
   const { currentUser } = useAuth();
   const { currency } = useSettings();
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false); // Terminated default loading state
+  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(null);
   const navigate = useNavigate();
 
   const formatPrice = (price) => {
@@ -20,62 +21,74 @@ export const UserDashboard = () => {
   };
 
   useEffect(() => {
-    if (!currentUser) {
-      console.log("UserDashboard: No current user, skipping subscription");
-      return;
-    }
-
-    console.log("UserDashboard: Initializing orders subscription for:", currentUser.uid);
+    if (!currentUser) return;
     setLoading(true);
-
-    // Start real-time subscription
     let unsubscribe;
     try {
       unsubscribe = subscribeToUserOrders(currentUser.uid, (data) => {
-        console.log("UserDashboard: Received orders data, count:", data.length);
         setOrders(data);
         setLoading(false);
-        console.log("UserDashboard: Loading stopped");
       });
     } catch (err) {
-      console.error("UserDashboard: Error setting up subscription:", err);
+      console.error('UserDashboard: Error setting up subscription:', err);
       setLoading(false);
     }
-
-    // Cleanup subscription on unmount
-    return () => {
-      if (unsubscribe) {
-        console.log("UserDashboard: Unsubscribing from orders");
-        unsubscribe();
-      }
-    };
+    return () => { if (unsubscribe) unsubscribe(); };
   }, [currentUser]);
 
   const handleCancelOrder = async (orderId) => {
     if (window.confirm('Are you sure you want to cancel this booking?')) {
       try {
+        setActionLoading(orderId);
         await deleteOrder(orderId);
-        // No need to manually fetch, the subscription handles real-time updates
       } catch (error) {
-        alert("Failed to cancel order. Please try again.");
+        alert('Failed to cancel order. Please try again.');
+      } finally {
+        setActionLoading(null);
       }
     }
   };
 
-  // Loading effect terminated - rendering content immediately
-  
+  // User signals that their laundry has been delivered (#6)
+  const handleMarkDelivered = async (orderId) => {
+    if (window.confirm('Confirm that your laundry has been delivered to you?')) {
+      try {
+        setActionLoading(orderId);
+        await updateOrderStatus(orderId, 'Delivered');
+      } catch (error) {
+        alert('Failed to update order. Please try again.');
+      } finally {
+        setActionLoading(null);
+      }
+    }
+  };
+
+  // User can delete delivered orders (#8)
+  const handleDeleteDelivered = async (orderId) => {
+    if (window.confirm('Remove this completed order from your history?')) {
+      try {
+        setActionLoading(orderId);
+        await deleteOrder(orderId);
+      } catch (error) {
+        alert('Failed to remove order. Please try again.');
+      } finally {
+        setActionLoading(null);
+      }
+    }
+  };
+
   return (
     <div className="animate-fade-in text-primary">
+      {/* Welcome Banner */}
       <div className="relative overflow-hidden bg-brand-600 rounded-3xl p-6 sm:p-8 mb-10 text-white shadow-xl shadow-brand-500/20 group">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700" />
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-black/10 rounded-full blur-3xl group-hover:bg-black/20 transition-all duration-700" />
-        
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center text-center lg:text-left gap-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold mb-2">Welcome back, {currentUser?.displayName?.split(' ')[0]}! 👋</h2>
-            <p className="text-brand-100 max-w-md mx-auto lg:mx-0">Your laundry is our priority. Schedule your next pickup today and enjoy your free time.</p>
+            <p className="text-brand-100 max-w-md mx-auto lg:mx-0">Your laundry is our priority. Schedule your next pickup today.</p>
           </div>
-          <Button 
+          <Button
             onClick={() => navigate('/booking')}
             className="w-full sm:w-auto bg-white !text-brand-600 hover:bg-brand-50 border-none px-8 py-3 text-lg font-bold transition-all hover:scale-105 dark:bg-slate-950 dark:text-brand-400 dark:hover:bg-slate-900 shadow-lg"
           >
@@ -84,6 +97,7 @@ export const UserDashboard = () => {
         </div>
       </div>
 
+      {/* Orders Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h2 className="text-2xl font-bold text-primary">Recent Orders</h2>
@@ -111,7 +125,6 @@ export const UserDashboard = () => {
                       <h3 className="text-lg font-semibold text-primary">{order.serviceType}</h3>
                       <Badge status={order.status} />
                     </div>
-                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
                       <div className="flex items-center gap-2 text-sm text-secondary">
                         <Calendar size={16} className="text-muted" />
@@ -123,122 +136,118 @@ export const UserDashboard = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-row md:flex-col justify-between md:justify-center items-center md:items-end border-t md:border-t-0 md:border-l border-slate-100 dark:border-slate-800 pt-4 md:pt-0 md:pl-6 gap-4">
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-primary">
-                        {formatPrice(order.price)}
-                      </div>
-                      <div className="text-xs text-muted mt-1 font-mono">
-                        ID: {order.id}
-                      </div>
+                      <div className="text-2xl font-bold text-primary">{formatPrice(order.price)}</div>
+                      <div className="text-xs text-muted mt-1 font-mono">ID: {order.id}</div>
                     </div>
+
+                    {/* Cancel — only when Pending */}
                     {order.status === 'Pending' && (
-                      <button 
+                      <button
                         onClick={() => handleCancelOrder(order.id)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-transparent hover:border-red-200"
+                        disabled={actionLoading === order.id}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-transparent hover:border-red-200 disabled:opacity-50"
                       >
                         <XCircle size={14} />
                         Cancel Order
                       </button>
                     )}
+
+                    {/* Mark as Delivered — user signals delivery (#6) */}
+                    {order.status === 'Out for Delivery' && (
+                      <button
+                        onClick={() => handleMarkDelivered(order.id)}
+                        disabled={actionLoading === order.id}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 rounded-lg transition-colors border border-emerald-200 hover:border-emerald-300 disabled:opacity-50"
+                      >
+                        <CheckCircle size={14} />
+                        {actionLoading === order.id ? 'Updating…' : 'Mark as Delivered'}
+                      </button>
+                    )}
+
+                    {/* Delete — only when Delivered (#8) */}
+                    {order.status === 'Delivered' && (
+                      <button
+                        onClick={() => handleDeleteDelivered(order.id)}
+                        disabled={actionLoading === order.id}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-transparent hover:border-red-200 disabled:opacity-50"
+                      >
+                        <Trash2 size={14} />
+                        {actionLoading === order.id ? 'Removing…' : 'Remove Order'}
+                      </button>
+                    )}
                   </div>
                 </div>
 
+                {/* Status info banners */}
                 {order.status === 'Completed' && (
                   <div className="mt-4 p-4 bg-brand-50 dark:bg-brand-900/20 rounded-xl border border-brand-100 dark:border-brand-800/50 flex items-start gap-3 animate-fade-in">
-                    <div className="p-1.5 bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 rounded-lg shrink-0 mt-0.5">
-                      <CheckCircle size={16} />
-                    </div>
+                    <div className="p-1.5 bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 rounded-lg shrink-0 mt-0.5"><CheckCircle size={16} /></div>
                     <div>
                       <p className="text-sm font-semibold text-brand-800 dark:text-brand-300">Your service has been completed!</p>
-                      <p className="text-xs text-brand-600/80 dark:text-brand-400/80 mt-1">
-                        Your laundry is fresh, clean, and ready to be shipped back to you. Thank you for trusting SmartWash with your garments!
-                      </p>
+                      <p className="text-xs text-brand-600/80 dark:text-brand-400/80 mt-1">Your laundry is fresh, clean, and ready to be shipped back to you.</p>
                     </div>
                   </div>
                 )}
-                
+
                 {order.status === 'Out for Delivery' && (
                   <div className="mt-4 p-4 bg-fuchsia-50 dark:bg-fuchsia-900/20 rounded-xl border border-fuchsia-100 dark:border-fuchsia-800/50 flex items-start gap-3 animate-fade-in">
-                    <div className="p-1.5 bg-fuchsia-100 dark:bg-fuchsia-900/50 text-fuchsia-600 dark:text-fuchsia-400 rounded-lg shrink-0 mt-0.5">
-                      <Truck size={16} />
-                    </div>
+                    <div className="p-1.5 bg-fuchsia-100 dark:bg-fuchsia-900/50 text-fuchsia-600 dark:text-fuchsia-400 rounded-lg shrink-0 mt-0.5"><Truck size={16} /></div>
                     <div>
                       <p className="text-sm font-semibold text-fuchsia-800 dark:text-fuchsia-300">Your laundry is on the way!</p>
-                      <p className="text-xs text-fuchsia-600/80 dark:text-fuchsia-400/80 mt-1">
-                        Our delivery partner has picked up your clothes and is heading to your location.
-                      </p>
+                      <p className="text-xs text-fuchsia-600/80 dark:text-fuchsia-400/80 mt-1">Once you receive it, tap <strong>Mark as Delivered</strong> to confirm.</p>
                     </div>
                   </div>
                 )}
-                
+
                 {order.status === 'Approved' && (
                   <div className="mt-4 p-4 bg-teal-50 dark:bg-teal-900/20 rounded-xl border border-teal-100 dark:border-teal-800/50 flex items-start gap-3 animate-fade-in">
-                    <div className="p-1.5 bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 rounded-lg shrink-0 mt-0.5">
-                      <ThumbsUp size={16} />
-                    </div>
+                    <div className="p-1.5 bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 rounded-lg shrink-0 mt-0.5"><ThumbsUp size={16} /></div>
                     <div>
                       <p className="text-sm font-semibold text-teal-800 dark:text-teal-300">Order Approved!</p>
-                      <p className="text-xs text-teal-600/80 dark:text-teal-400/80 mt-1">
-                        We've received and approved your booking. We will be picking up your laundry soon.
-                      </p>
+                      <p className="text-xs text-teal-600/80 dark:text-teal-400/80 mt-1">We've approved your booking. We will be picking up your laundry soon.</p>
                     </div>
                   </div>
                 )}
-                
+
                 {order.status === 'Declined' && (
                   <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800/50 flex items-start gap-3 animate-fade-in">
-                    <div className="p-1.5 bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg shrink-0 mt-0.5">
-                      <XOctagon size={16} />
-                    </div>
+                    <div className="p-1.5 bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg shrink-0 mt-0.5"><XOctagon size={16} /></div>
                     <div>
                       <p className="text-sm font-semibold text-red-800 dark:text-red-300">Order Declined</p>
-                      <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-1">
-                        Unfortunately, we could not fulfill this request at the moment. Please contact support.
-                      </p>
+                      <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-1">We could not fulfill this request. Please contact support.</p>
                     </div>
                   </div>
                 )}
-                
+
                 {order.status === 'Picked Up' && (
                   <div className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/50 flex items-start gap-3 animate-fade-in">
-                    <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg shrink-0 mt-0.5">
-                      <Package size={16} />
-                    </div>
+                    <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg shrink-0 mt-0.5"><Package size={16} /></div>
                     <div>
                       <p className="text-sm font-semibold text-indigo-800 dark:text-indigo-300">Laundry Picked Up</p>
-                      <p className="text-xs text-indigo-600/80 dark:text-indigo-400/80 mt-1">
-                        Your clothes have been securely picked up and are on the way to our cleaning facility.
-                      </p>
+                      <p className="text-xs text-indigo-600/80 dark:text-indigo-400/80 mt-1">Your clothes have been securely picked up and are heading to our facility.</p>
                     </div>
                   </div>
                 )}
 
                 {order.status === 'Washing' && (
                   <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50 flex items-start gap-3 animate-fade-in">
-                    <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg shrink-0 mt-0.5">
-                      <Droplet size={16} className="animate-bounce" />
-                    </div>
+                    <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg shrink-0 mt-0.5"><Droplet size={16} className="animate-bounce" /></div>
                     <div>
                       <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">Currently Washing</p>
-                      <p className="text-xs text-blue-600/80 dark:text-blue-400/80 mt-1">
-                        Our experts are currently washing, drying, and treating your garments with the utmost care.
-                      </p>
+                      <p className="text-xs text-blue-600/80 dark:text-blue-400/80 mt-1">Our experts are washing, drying, and treating your garments with the utmost care.</p>
                     </div>
                   </div>
                 )}
-                
+
                 {order.status === 'Delivered' && (
                   <div className="mt-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800/50 flex items-start gap-3 animate-fade-in">
-                    <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg shrink-0 mt-0.5">
-                      <Home size={16} />
-                    </div>
+                    <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg shrink-0 mt-0.5"><Home size={16} /></div>
                     <div>
-                      <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Delivered Successfully!</p>
-                      <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-1">
-                        Your laundry has been safely delivered back to you. We hope you enjoy the freshness!
-                      </p>
+                      <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Delivered Successfully! 🎉</p>
+                      <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-1">Your laundry has been delivered. You can remove this order from your history.</p>
                     </div>
                   </div>
                 )}
