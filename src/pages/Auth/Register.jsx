@@ -93,45 +93,72 @@ export const Register = () => {
   };
 
   return (
-    <div 
-      className="min-h-screen w-full flex justify-center items-center" 
-      style={{ 
-        background: "linear-gradient(rgba(20, 30, 60, 0.75), rgba(80, 100, 180, 0.6)), url('/src/assets/bg.jpg') center/cover no-repeat" 
+    <div
+      className="relative min-h-screen w-full flex justify-center items-center px-4 overflow-hidden"
+      style={{
+        background: `
+        linear-gradient(
+          135deg,
+          rgba(20, 30, 60, 0.65) 0%,
+          rgba(60, 80, 160, 0.55) 50%,
+          rgba(120, 100, 200, 0.5) 100%
+        ),
+        url('/src/assets/bg.jpg') center/cover no-repeat
+        `,
       }}
     >
-      {/* Back to Home Button */}
-      <Link 
-        to="/" 
+      {/* 🔥 Glow Background Effects */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-120px] right-[-120px] w-[320px] h-[320px] bg-purple-500/30 rounded-full blur-[140px]" />
+        <div className="absolute bottom-[-120px] left-[-120px] w-[320px] h-[320px] bg-blue-500/30 rounded-full blur-[140px]" />
+      </div>
+
+      {/* Back Button */}
+      <Link
+        to="/"
         className="absolute top-6 left-6 sm:top-8 sm:left-8 flex items-center gap-2 text-sm font-bold text-white/80 hover:text-white transition-all hover:-translate-x-1 group z-20"
       >
-        <div className="p-1.5 rounded-full bg-white/10 backdrop-blur-md group-hover:bg-white/20 transition-colors border border-white/10">
+        <div className="p-1.5 rounded-full bg-white/10 backdrop-blur-md group-hover:bg-white/20 border border-white/10">
           <ArrowLeft size={16} />
         </div>
         Back to Home
       </Link>
 
-      {/* Glassmorphism Card */}
-      <div 
-        className="w-[90%] max-w-[400px] p-6 sm:p-8 rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.3)] backdrop-blur-[16px] bg-[rgba(255,255,255,0.12)] border border-[rgba(255,255,255,0.25)] relative z-10 [&_label]:!text-white/90"
+      {/* Glass Card */}
+      <div
+        className="
+        w-full max-w-[400px]
+        p-6 sm:p-8
+        rounded-[24px]
+        backdrop-blur-[18px]
+        bg-[rgba(255,255,255,0.15)]
+        border border-white/30
+        shadow-[0_20px_60px_rgba(0,0,0,0.4)]
+        relative z-10
+        text-white
+      "
       >
+        {/* Header */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-white">Create Account</h2>
-          <p className="mt-2 text-sm text-white/80">Join SmartWash today</p>
+          <h2 className="text-3xl font-bold tracking-tight">Create Account</h2>
+          <p className="mt-2 text-white/80">Join SmartWash today</p>
         </div>
 
+        {/* Error */}
         {error && (
           <div className="mb-4 bg-red-500/20 border border-red-500/50 text-red-100 px-4 py-3 rounded-xl text-sm text-center backdrop-blur-sm">
             {error}
           </div>
         )}
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Full Name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50 placeholder:!text-white/60"
+            className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.25)] !text-white placeholder:!text-white/60 focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50"
             required
           />
           <Input
@@ -139,7 +166,7 @@ export const Register = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50 placeholder:!text-white/60"
+            className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.25)] !text-white placeholder:!text-white/60 focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50"
             required
           />
           <div className="relative">
@@ -149,7 +176,7 @@ export const Register = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               maxLength={16}
-              className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50 placeholder:!text-white/60"
+              className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.25)] !text-white placeholder:!text-white/60 focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50"
               required
             />
             <button
@@ -194,24 +221,40 @@ export const Register = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             maxLength={16}
-            className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.2)] !text-white focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50 placeholder:!text-white/60"
+            className="!min-h-[48px] !bg-[rgba(255,255,255,0.1)] !border-[rgba(255,255,255,0.25)] !text-white placeholder:!text-white/60 focus:!bg-[rgba(255,255,255,0.15)] focus:!border-white/50"
             required
           />
-          <Button 
-            type="submit" 
-            fullWidth 
-            loading={loading} 
-            className="!min-h-[48px] text-lg font-bold shadow-lg shadow-blue-900/30 mt-6 !bg-[linear-gradient(to_right,#3b82f6,#2563eb)] !border-none hover:opacity-90 active:scale-[0.98] !text-white transition-all"
+          
+          {/* Button */}
+          <Button
+            type="submit"
+            fullWidth
+            loading={loading}
+            className="
+              !min-h-[48px]
+              text-lg font-bold mt-4
+              !text-white
+              !bg-[linear-gradient(135deg,#4f8cff,#2563eb)]
+              shadow-[0_10px_25px_rgba(37,99,235,0.4)]
+              hover:opacity-90 active:scale-[0.98]
+              transition-all
+            "
           >
             Sign Up
           </Button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-white/80">
-          Already have an account?{' '}
-          <Link to="/login" className="font-bold text-white hover:text-blue-200 transition-all border-b-2 border-transparent hover:border-blue-300 pb-0.5">
-            Sign in
-          </Link>
+        {/* Footer */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-white/80">
+            Already have an account?{' '}
+            <Link
+              to="/login"
+              className="font-bold text-white hover:text-blue-200 border-b border-transparent hover:border-blue-300"
+            >
+              Sign in
+            </Link>
+          </p>
         </div>
       </div>
     </div>
